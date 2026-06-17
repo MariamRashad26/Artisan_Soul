@@ -26,12 +26,17 @@ import financeRoutes from './routes/financeRoutes.js';
 import workOrderRoutes from './routes/workOrderRoutes.js';
 import productionRoutes from './routes/productionRoutes.js';
 import bespokeDesignRoutes from './routes/bespokeDesignRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import settingRoutes from './routes/settingRoutes.js';
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// **Important: Uploaded Videos Serve Karne ke liye**
+app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -43,6 +48,8 @@ app.use('/api/raw-materials', rawMaterialRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/qc', qcRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/settings', settingRoutes);
 app.use('/api/artisans', artisanRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/chat', chatRoutes);

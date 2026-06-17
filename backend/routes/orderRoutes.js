@@ -6,16 +6,17 @@ import {
   updateOrder,
   deleteOrder
 } from '../controllers/orderController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
-  .get(getOrders)
-  .post(createOrder);
+  .get(protect, getOrders)
+  .post(protect, createOrder);
 
 router.route('/:id')
-  .get(getOrderById)
-  .put(updateOrder)
-  .delete(deleteOrder);
+  .get(protect, getOrderById)
+  .put(protect, updateOrder)
+  .delete(protect, deleteOrder);
 
 export default router;

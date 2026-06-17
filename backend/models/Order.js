@@ -19,7 +19,6 @@ const orderSchema = new mongoose.Schema({
   },
   phase: {
     type: String,
-    enum: ['Design Prep', 'Cutting', 'Lasting', 'Stitching', 'Finished'],
     default: 'Design Prep'
   },
   progress: {
@@ -32,13 +31,43 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['normal', 'urgent'],
     default: 'normal'
   },
   img: {
     type: String,
     required: false
-  }
+  },
+  artisan: {
+    type: String,
+    default: null
+  },
+  artisan_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  price: {
+    type: Number,
+    default: 2500
+  },
+  paymentMethod: {
+    type: String,
+    default: 'Cash on Delivery'
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['Pending', 'Paid'],
+    default: 'Pending'
+  },
+  shippingAddress: {
+    type: String,
+    default: ''
+  },
 }, {
   timestamps: true,
   strict: false

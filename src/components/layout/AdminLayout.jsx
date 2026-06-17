@@ -1,11 +1,30 @@
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import axios from '../../utils/axiosInstance';
 
 const AdminLayout = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Poll for unread notification count
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const { data } = await axios.get('/api/notifications');
+        const count = data.filter(n => !n.read).length;
+        setUnreadCount(count);
+      } catch (err) {
+        // silent
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -14,6 +33,7 @@ const AdminLayout = () => {
 
   const navItems = [
     { label: 'Dashboard', icon: 'dashboard', path: '/admin' },
+    { label: 'Messages', icon: 'chat', path: '/admin/messages' },
     { label: 'Orders', icon: 'shopping_bag', path: '/admin/orders' },
     { label: 'Artisans', icon: 'engineering', path: '/admin/artisans' },
     { label: 'Suppliers', icon: 'local_shipping', path: '/admin/suppliers' },
@@ -90,30 +110,23 @@ const AdminLayout = () => {
 
       {/* Main Workspace Area */}
       <main className="flex-grow-1 overflow-y-auto w-100 bg-background-light relative">
-        {/* Cinematic Header */}
-        <header className="sticky-top top-0 z-40 bg-gradient-to-r from-white via-[#bd580f]/20 to-black backdrop-blur-2xl border-bottom border-stone-100 px-8 py-5 h-20 d-flex align-items-center justify-content-between shadow-sm">
+        {/* Consistent Light Header */}
+        <header className="sticky-top top-0 z-40 bg-white/80 backdrop-blur-xl border-bottom border-stone-200 px-8 py-5 h-20 d-flex align-items-center justify-content-between shadow-sm">
           <div className="d-flex align-items-center gap-8">
             <h2 className="display-6 fw-black font-serif text-dark tracking-tighter mb-0 lowercase">Overview.</h2>
-            <div className="d-none d-md-flex align-items-center gap-2 text-stone-800">
-              <span className="text-[10px] fw-black text-uppercase tracking-widest">Global Status:</span>
-              <span className="text-[10px] fw-black text-uppercase tracking-widest text-emerald-600 d-flex align-items-center gap-1">
-                <span className="size-1.5 bg-emerald-600 rounded-full animate-pulse-slow"></span>
-                Nominal
-              </span>
-            </div>
           </div>
 
           <div className="d-flex align-items-center gap-4">
-            <div className="position-relative d-none d-sm-block group">
-              <span className="material-symbols-outlined position-absolute left-4 top-50 translate-middle-y text-stone-600 fs-5 group-focus-within:text-white transition-colors">search</span>
-              <input className="pl-12 pr-6 py-2.5 bg-white/10 border-white/20 rounded-2xl text-xs fw-medium w-80 focus:bg-white/20 focus:border-white focus:ring-4 focus:ring-white/10 outline-none transition duration-500 text-white placeholder:text-stone-700" placeholder="Search operations..." type="text" />
-            </div>
-            
             <div className="d-flex gap-2">
-              <Link to="/admin/notifications" className="size-11 rounded-2xl border border-white/20 d-flex align-items-center justify-content-center text-white/70 hover:bg-white hover:text-dark transition duration-500 text-decoration-none">
+              <Link to="/admin/notifications" className="size-11 rounded-2xl border border-stone-200 bg-white d-flex align-items-center justify-content-center text-stone-500 hover:bg-stone-50 hover:text-dark transition duration-500 text-decoration-none shadow-sm position-relative">
                 <span className="material-symbols-outlined fs-5">notifications</span>
+                {unreadCount > 0 && (
+                  <span className="position-absolute d-flex align-items-center justify-content-center bg-danger text-white fw-black rounded-full shadow-lg animate-pulse" style={{ top: '-5px', right: '-5px', width: '20px', height: '20px', fontSize: '10px', lineHeight: 1 }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </Link>
-              <Link to="/admin/settings" className="size-11 rounded-2xl border border-white/20 d-flex align-items-center justify-content-center text-white/70 hover:bg-white hover:text-dark transition duration-500 text-decoration-none">
+              <Link to="/admin/settings" className="size-11 rounded-2xl border border-stone-200 bg-white d-flex align-items-center justify-content-center text-stone-500 hover:bg-stone-50 hover:text-dark transition duration-500 text-decoration-none shadow-sm">
                 <span className="material-symbols-outlined fs-5">settings</span>
               </Link>
             </div>

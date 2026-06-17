@@ -1,17 +1,19 @@
 import express from 'express';
 import {
-  getArtisanQueue,
-  updateOrderStage,
-  uploadClip,
-  getClips
+  getArtisans,
+  addArtisan,
+  updateArtisan,
+  deleteArtisan
 } from '../controllers/artisanController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { admin } from '../middleware/adminMiddleware.js';
 
 const router = express.Router();
 
-router.route('/queue').get(getArtisanQueue);
-router.route('/order/:id/stage').put(updateOrderStage);
-router.route('/clips')
-  .get(getClips)
-  .post(uploadClip);
+// Artisan CRUD — all routes require admin
+router.route('/').get(protect, admin, getArtisans);
+router.route('/').post(protect, admin, addArtisan);
+router.route('/:id').put(protect, admin, updateArtisan);
+router.route('/:id').delete(protect, admin, deleteArtisan);
 
 export default router;

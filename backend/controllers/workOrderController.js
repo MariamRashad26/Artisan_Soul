@@ -32,6 +32,45 @@ export const createWorkOrder = async (req, res) => {
   }
 };
 
+// @desc    Update a work order
+// @route   PUT /api/work-orders/:id
+// @access  Private
+export const updateWorkOrder = async (req, res) => {
+  try {
+    const { deadline, instructions, status } = req.body;
+    const workOrder = await WorkOrder.findById(req.params.id);
+    if (!workOrder) {
+      return res.status(404).json({ message: 'Work order not found' });
+    }
+    if (deadline) workOrder.deadline = deadline;
+    if (instructions) workOrder.instructions = instructions;
+    if (status) workOrder.status = status;
+    
+    await workOrder.save();
+    const updated = await WorkOrder.findById(workOrder._id).populate('order_id').populate('assigned_to', 'name email');
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete a work order
+// @route   DELETE /api/work-orders/:id
+// @access  Private
+export const deleteWorkOrder = async (req, res) => {
+  try {
+    const workOrder = await WorkOrder.findById(req.params.id);
+    if (workOrder) {
+      await WorkOrder.deleteOne({ _id: workOrder._id });
+      res.json({ message: 'Work order removed' });
+    } else {
+      res.status(404).json({ message: 'Work order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Log material consumption
 // @route   POST /api/work-orders/consumption
 // @access  Private

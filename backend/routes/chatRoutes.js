@@ -1,10 +1,17 @@
 import express from 'express';
-import { getMessages, sendMessage } from '../controllers/chatController.js';
+import { getMessages, sendMessage, deleteMessage, getThreads } from '../controllers/chatController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.route('/threads')
+  .get(protect, getThreads);
+
 router.route('/')
-  .get(getMessages)
-  .post(sendMessage);
+  .get(protect, getMessages)
+  .post(protect, sendMessage);
+
+router.route('/:id')
+  .delete(protect, deleteMessage);
 
 export default router;

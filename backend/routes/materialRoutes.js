@@ -6,16 +6,18 @@ import {
   updateMaterial,
   deleteMaterial
 } from '../controllers/materialController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { admin } from '../middleware/adminMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
-  .get(getMaterials)
-  .post(createMaterial);
+  .get(protect, admin, getMaterials)
+  .post(protect, admin, createMaterial);
 
 router.route('/:id')
-  .get(getMaterialById)
-  .put(updateMaterial)
-  .delete(deleteMaterial);
+  .get(protect, admin, getMaterialById)
+  .put(protect, admin, updateMaterial)
+  .delete(protect, admin, deleteMaterial);
 
 export default router;
