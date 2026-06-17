@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config frontend/vite.config.js --root frontend",
-    "build": "vite build --config frontend/vite.config.js --root frontend",
+    "dev": "vite frontend --config frontend/vite.config.js",
+    "build": "vite build frontend --config frontend/vite.config.js",
     "lint": "eslint frontend --config frontend/eslint.config.js",
-    "preview": "vite preview --config frontend/vite.config.js --root frontend",
+    "preview": "vite preview frontend --config frontend/vite.config.js",
     "server": "node backend/server.js",
     "seed": "node backend/seedUsers.js",
     "verify": "node backend/verifyUser.js"
