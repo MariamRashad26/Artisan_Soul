@@ -32,7 +32,17 @@ import settingRoutes from './routes/settingRoutes.js';
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://artisan-soul.vercel.app',
+    process.env.FRONTEND_URL
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // **Important: Uploaded Videos Serve Karne ke liye**
