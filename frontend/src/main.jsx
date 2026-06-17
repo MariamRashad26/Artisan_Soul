@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
+import './globals.css';
 import axios from 'axios';
 
 // Configure Axios global interceptor to inject Authorization header
