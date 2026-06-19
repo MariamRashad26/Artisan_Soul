@@ -22,22 +22,10 @@ const Navbar = () => {
           <Nav className="mx-auto gap-4 custom-nav-links">
             <Nav.Link href="#collections" className="text-secondary hover-text-primary px-0 fw-medium">Collections</Nav.Link>
             <Nav.Link href="#process" className="text-secondary hover-text-primary px-0 fw-medium">Process</Nav.Link>
-            <Nav.Link as={Link} to="/custom-designer" className="text-secondary hover-text-primary px-0 fw-medium">Custom</Nav.Link>
             <Nav.Link href="#reviews" className="text-secondary hover-text-primary px-0 fw-medium">Reviews</Nav.Link>
           </Nav>
           
           <div className="d-flex align-items-center gap-3">
-            <Form className="d-none d-lg-block">
-              <InputGroup className="bg-primary-10 rounded-xl px-3 py-1 border-0">
-                 <span className="material-symbols-outlined text-primary/60 fs-5 align-self-center">search</span>
-                <Form.Control
-                  type="search"
-                  placeholder="Search models..."
-                  className="bg-transparent border-0 shadow-none text-muted small"
-                  aria-label="Search"
-                />
-              </InputGroup>
-            </Form>
             
             <Link 
               to="/login"

@@ -25,24 +25,20 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Force verified = true by default
     const user = await User.create({
       name,
       email,
       password,
       role: 'user',
-      isVerified: true,
     });
 
     if (user) {
-      // Return token immediately for auto-login
       res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
         token: generateToken(user._id),
-        requiresVerification: false,
         message: 'Registration successful! Welcome to Artisan Soul.',
       });
     } else {
@@ -88,13 +84,6 @@ export const loginUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
-
-// @desc    Verify email (dummy/bypassed)
-// @route   GET /api/auth/verify/:token
-// @access  Public
-export const verifyEmail = async (req, res) => {
-  res.json({ message: 'Email verification bypassed. Account is fully verified.' });
 };
 
 // @desc    Forgot password — log reset url (no SMTP)
@@ -150,7 +139,6 @@ export const resetPassword = async (req, res) => {
     user.password = password; // pre-save hook will hash it
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
-    user.isVerified = true; // Auto-verify on password reset
     await user.save();
 
     res.json({ message: 'Password reset successfully. You can now log in.' });
@@ -309,7 +297,6 @@ export const createStaffAccount = async (req, res) => {
       email,
       password,
       role,
-      isVerified: true, // Staff accounts are pre-verified by admin
     });
 
     res.status(201).json({
@@ -319,7 +306,6 @@ export const createStaffAccount = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        isVerified: user.isVerified,
       },
     });
   } catch (error) {
@@ -327,9 +313,3 @@ export const createStaffAccount = async (req, res) => {
   }
 };
 
-// @desc    Resend verification email (dummy/bypassed)
-// @route   POST /api/auth/resend-verification
-// @access  Public
-export const resendVerificationEmail = async (req, res) => {
-  res.json({ message: 'Verification is bypassed. Your account is already verified.' });
-};

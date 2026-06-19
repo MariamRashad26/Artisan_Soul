@@ -59,17 +59,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data } = await axiosInstance.post('/api/auth/register', { name, email, password, role });
 
-            // Agar verification required hai to auto-login mat karo
-            if (data.requiresVerification) {
-                return {
-                    success: true,
-                    message: data.message || 'Please check your email to verify your account.',
-                    requiresVerification: true,
-                    autoLoggedIn: false,
-                };
-            }
-
-            // Agar token mila to auto-login
+            // Auto-login on successful registration
             if (data.token) {
                 setToken(data.token);
                 const userData = {
@@ -86,7 +76,6 @@ export const AuthProvider = ({ children }) => {
                 success: true,
                 message: data.message,
                 autoLoggedIn: !!data.token,
-                requiresVerification: false,
             };
         } catch (error) {
             const message = error.response?.data?.message || 'Registration failed';

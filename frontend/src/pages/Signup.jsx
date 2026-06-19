@@ -9,7 +9,6 @@ const Signup = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -17,18 +16,12 @@ const Signup = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMsg('');
     setIsSubmitting(true);
 
     const result = await register(name, email, password, 'user');
 
     if (result.success) {
-      if (result.requiresVerification) {
-        setSuccessMsg('Account created! Please check your email and click the verification link before logging in.');
-        setIsSubmitting(false);
-        return;
-      }
-      // Auto-logged in, navigate to user tracker
+      // Auto-logged in, navigate to user dashboard
       navigate('/user/tracker');
     } else {
       setError(result.message || 'Registration failed');
@@ -70,16 +63,7 @@ const Signup = () => {
             <p className="text-secondary">Join our exclusive circle of artisans and collectors.</p>
           </div>
 
-          {/* ✅ Success message - email verification ke baad */}
-          {successMsg && (
-            <div className="alert alert-success p-3 mb-2 rounded-xl text-sm d-flex align-items-center gap-2">
-              <span className="material-symbols-outlined fs-5">mark_email_read</span>
-              {successMsg}
-              <div className="mt-2">
-                <Link to="/login" className="btn btn-sm btn-success">Go to Login</Link>
-              </div>
-            </div>
-          )}
+
 
           {error && (
             <div className="alert alert-danger p-3 mb-2 rounded-xl text-sm d-flex align-items-center gap-2">
@@ -88,9 +72,7 @@ const Signup = () => {
             </div>
           )}
 
-          {/* Form - success message ke baad hide karo */}
-          {!successMsg && (
-            <form onSubmit={handleRegister} className="d-flex flex-column gap-4">
+          <form onSubmit={handleRegister} className="d-flex flex-column gap-4">
               <div className="d-flex flex-column gap-2">
                 <label className="text-sm font-bold text-dark ps-1">Full Name</label>
                 <input
@@ -147,7 +129,6 @@ const Signup = () => {
                 {!isSubmitting && <span className="material-symbols-outlined fs-5">arrow_forward</span>}
               </button>
             </form>
-          )}
 
           <div className="text-center mt-2">
             <p className="text-secondary text-sm">

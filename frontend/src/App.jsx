@@ -18,7 +18,6 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
@@ -75,7 +74,6 @@ function App() {
               <Route element={<Layout><Cart /></Layout>} path="/cart" />
               <Route element={<Layout><UserOrderTracking /></Layout>} path="/track-order/:id" />
               <Route element={<Layout><UserOrderTracking /></Layout>} path="/track-order" />
-              <Route path="/verify-email/:token" element={<VerifyEmail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

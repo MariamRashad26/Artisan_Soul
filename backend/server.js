@@ -31,6 +31,8 @@ const app = express();
 // ✅ FIX: CORS - Vercel frontend aur localhost dono allow karo
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
   'http://localhost:3000',
   'https://artisan-soul.vercel.app',
   'https://artisan-soul-git-main-marium.vercel.app',
@@ -38,11 +40,13 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // No origin = mobile app / Postman / curl - allow karo
+    // No origin = Postman / curl / mobile — always allow
     if (!origin) return callback(null, true);
 
-    // Check karo allowed list mein hai ya nahi
-    // Ya FRONTEND_URL env variable se match karta hai
+    // Allow any localhost port for local development
+    if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+
+    // Check production allowed list or FRONTEND_URL env var
     const isAllowed =
       allowedOrigins.includes(origin) ||
       origin === process.env.FRONTEND_URL ||

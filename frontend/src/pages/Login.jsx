@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axiosInstance from '../utils/axiosInstance';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [resendStatus, setResendStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
   const [error, setError] = useState('');
-  const [isEmailUnverified, setIsEmailUnverified] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { login, user } = useAuth();
@@ -26,8 +23,6 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setIsEmailUnverified(false);
-    setResendStatus('idle');
     setIsSubmitting(true);
     
     const result = await login(email, password);
@@ -38,28 +33,9 @@ const Login = () => {
       else navigate('/user/tracker');
     } else {
       setError(result.message || 'Login failed');
-      // Detect unverified email error
-      if (result.message && result.message.toLowerCase().includes('verify')) {
-        setIsEmailUnverified(true);
-      }
     }
     
     setIsSubmitting(false);
-  };
-
-  const handleResendVerification = async () => {
-    if (!email) {
-      setError('Please enter your email address above first.');
-      return;
-    }
-    setResendStatus('sending');
-    try {
-      await axiosInstance.post('/api/auth/resend-verification', { email });
-      setResendStatus('sent');
-    } catch {
-      setResendStatus('idle');
-      setError('Failed to resend. Please try again.');
-    }
   };
 
   return (
@@ -95,33 +71,12 @@ const Login = () => {
             <p className="text-secondary opacity-70">Please enter your details to access your studio.</p>
           </div>
           
-          {/* Error Alert — with smart Resend button for unverified accounts */}
+          {/* Error Alert */}
           {error && (
             <div className="alert alert-danger p-3 mb-4 rounded-xl text-sm" style={{ borderRadius: 12 }}>
               <div className="d-flex align-items-start gap-2">
                 <span className="material-symbols-outlined fs-5 mt-1">error</span>
-                <div>
-                  <div>{error}</div>
-                  {isEmailUnverified && (
-                    <div className="mt-2">
-                      {resendStatus === 'sent' ? (
-                        <span style={{ color: '#15803d', fontWeight: 600, fontSize: '0.85rem' }}>
-                          ✓ Verification email sent! Check your inbox.
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={handleResendVerification}
-                          disabled={resendStatus === 'sending'}
-                          className="btn btn-sm border-0 p-0 text-decoration-underline"
-                          style={{ color: '#7f1d1d', fontSize: '0.85rem', fontWeight: 600 }}
-                        >
-                          {resendStatus === 'sending' ? 'Sending...' : '→ Resend verification email'}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <div>{error}</div>
               </div>
             </div>
           )}
