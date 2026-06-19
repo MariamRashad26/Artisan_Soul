@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 
@@ -13,7 +13,7 @@ const AdminAssignArtisan = () => {
   const [orderData, setOrderData] = useState(null);
   const [workOrders, setWorkOrders] = useState([]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       let orderRes = null;
       try {
@@ -65,11 +65,14 @@ const AdminAssignArtisan = () => {
     } catch (error) {
       console.error('Failed to fetch data', error);
     }
-  };
+  }, [orderId]);
 
   useEffect(() => {
-    fetchData();
-  }, [orderId]);
+    const load = async () => {
+      await fetchData();
+    };
+    load();
+  }, [fetchData]);
 
   const handleConfirm = async () => {
     const artisanObj = artisans.find(a => a.name === selectedArtisan);

@@ -4,7 +4,7 @@ import { CartContext } from '../context/CartContext';
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getSubtotal } = useContext(CartContext);
-  const [videoAdded, setVideoAdded] = useState(false);
+  const [videoAdded] = useState(false);
 
   const subtotal = getSubtotal();
   const videoCost = videoAdded ? 50 : 0;

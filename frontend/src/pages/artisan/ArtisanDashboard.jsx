@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button as BsButton } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
+
+const STAGES = ['Design Prep', 'Cutting', 'Lasting', 'Stitching', 'Finished'];
 
 const ArtisanDashboard = () => {
   const [showNotification, setShowNotification] = useState(false);
@@ -16,6 +18,8 @@ const ArtisanDashboard = () => {
   const [pendingAssignment, setPendingAssignment] = useState(null);
 
   const { user } = useAuth();
+
+  const getStageIndex = useCallback((stage) => Math.max(0, STAGES.indexOf(stage)), []);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -90,14 +94,11 @@ const ArtisanDashboard = () => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
-
-  const stages = ['Design Prep', 'Cutting', 'Lasting', 'Stitching', 'Finished'];
-  const getStageIndex = (stage) => Math.max(0, stages.indexOf(stage));
+  }, [user, getStageIndex]);
 
   const updateStage = async (newIdx) => {
     if (!activeTask._id) return;
-    const newStage = stages[newIdx];
+    const newStage = STAGES[newIdx];
     try {
       await axios.put(`/api/orders/${activeTask.id}`, { phase: newStage, progress: Math.floor((newIdx / 4) * 100) });
       setProductionStage(newIdx);
@@ -294,7 +295,7 @@ const ArtisanDashboard = () => {
                 <div>
                   <div className="d-flex justify-content-between align-items-center mb-6">
                     <h4 className="text-[10px] fw-black text-stone-400 text-uppercase tracking-[0.3em]">Lifecycle Progression</h4>
-                    <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] fw-black tracking-widest">STAGE: {stages[productionStage]} ({(productionStage/4)*100}%)</div>
+                    <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] fw-black tracking-widest">STAGE: {STAGES[productionStage]} ({(productionStage/4)*100}%)</div>
                   </div>
                   
                   <div className="position-relative px-4 py-8">

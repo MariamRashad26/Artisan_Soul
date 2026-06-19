@@ -28,7 +28,8 @@ const AdminDesigns = () => {
   };
 
   useEffect(() => {
-    fetchDesigns();
+    const loadDesigns = async () => { await fetchDesigns(); };
+    loadDesigns();
   }, []);
 
   const handleUpdateStatus = async (id, status) => {

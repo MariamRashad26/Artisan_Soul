@@ -71,7 +71,7 @@ const ArtisanQualityCheck = () => {
             foundOrder = data;
             break;
           }
-        } catch (_) {
+        } catch {
           // try next format
         }
       }
@@ -96,7 +96,9 @@ const ArtisanQualityCheck = () => {
     if (!id && !selectedOrderId && allOrders.length > 0) {
       const awaitingQc = allOrders.find(o => o.status === 'Quality Check' || o.phase === 'Quality Control');
       if (awaitingQc) {
-        setSelectedOrderId(awaitingQc.orderId || awaitingQc._id);
+        setTimeout(() => {
+          setSelectedOrderId(awaitingQc.orderId || awaitingQc._id);
+        }, 0);
       }
     }
   }, [id, selectedOrderId, allOrders]);

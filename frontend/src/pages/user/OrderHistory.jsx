@@ -13,7 +13,6 @@ const OrderHistory = () => {
   const [showPerksModal, setShowPerksModal] = useState(false);
   
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [profileSavedToast, setProfileSavedToast] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All Time');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -279,7 +278,13 @@ const OrderHistory = () => {
                 </select>
               </div>
             </div>
-            <button onClick={handleSaveProfile} className="w-100 py-3 bg-dark text-white rounded-pill fw-black text-xs uppercase tracking-widest hover:bg-primary transition">Save Preferences</button>
+            <button 
+              onClick={handleSaveProfile} 
+              disabled={isSavingProfile}
+              className="w-100 py-3 bg-dark text-white rounded-pill fw-black text-xs uppercase tracking-widest hover:bg-primary transition"
+            >
+              {isSavingProfile ? 'Saving...' : 'Save Preferences'}
+            </button>
           </div>
         </div>
       )}
@@ -360,20 +365,7 @@ const OrderHistory = () => {
 
 
 
-      {/* Success Toast */}
-      {profileSavedToast && (
-        <div className="position-fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-500">
-          <div className="bg-dark text-white px-6 py-4 rounded-2xl shadow-2xl d-flex align-items-center gap-4 border border-white/10">
-            <div className="size-10 bg-green-500/20 text-green-400 rounded-full d-flex align-items-center justify-content-center">
-              <span className="material-symbols-outlined fs-5">check_circle</span>
-            </div>
-            <div>
-              <h5 className="fs-6 fw-bold mb-1">Profile Updated</h5>
-              <p className="text-white/60 text-xs mb-0">Your preferences have been saved.</p>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

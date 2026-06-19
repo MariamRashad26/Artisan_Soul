@@ -14,7 +14,7 @@ const AdminOrderDetail = () => {
     stage: 'Stitching', progress: 65, status: 'Active', priority: 'VIP Expedited', artisan: 'Lorenzo Giamatti', color: 'primary'
   };
 
-  const [order, setOrder] = useState(location.state?.order || fallbackOrder);
+  const order = location.state?.order || fallbackOrder;
   const [activePipeline, setActivePipeline] = useState(null);
 
   useEffect(() => {
@@ -23,7 +23,9 @@ const AdminOrderDetail = () => {
         const { data } = await axiosInstance.get('/api/orders');
         const active = data.filter(o => o.phase !== 'Finished').length;
         setActivePipeline(active);
-      } catch (_) {}
+      } catch {
+        console.warn('Failed to fetch active pipeline count');
+      }
     };
     fetchActivePipeline();
   }, []);

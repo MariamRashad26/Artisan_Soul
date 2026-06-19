@@ -14,9 +14,7 @@ const AdminInventory = () => {
 
   const [rawMaterials, setRawMaterials] = useState([]);
   const [purchases, setPurchases] = useState([]);
-  const [consumptionLogs, setConsumptionLogs] = useState([]);
   const [productInventory, setProductInventory] = useState([]);
-  const [packagingLogs, setPackagingLogs] = useState([]);
   
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -69,7 +67,8 @@ const AdminInventory = () => {
   };
 
   useEffect(() => {
-    fetchAllData();
+    const loadData = async () => { await fetchAllData(); };
+    loadData();
   }, []);
 
   // Purchase Operations
@@ -86,7 +85,7 @@ const AdminInventory = () => {
       });
       setIsPurchaseModalOpen(false);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to log purchase');
     }
   };
@@ -102,7 +101,7 @@ const AdminInventory = () => {
       setIsEditPurchaseModalOpen(false);
       setEditingPurchase(null);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to update purchase');
     }
   };
@@ -112,7 +111,7 @@ const AdminInventory = () => {
     try {
       await axios.delete(`/api/finance/purchases/${id}`);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to delete purchase');
     }
   };
@@ -132,7 +131,7 @@ const AdminInventory = () => {
       });
       setIsRawMaterialModalOpen(false);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to log material');
     }
   };
@@ -151,7 +150,7 @@ const AdminInventory = () => {
       setIsEditRawMaterialModalOpen(false);
       setEditingRawMaterial(null);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to update material');
     }
   };
@@ -161,7 +160,7 @@ const AdminInventory = () => {
     try {
       await axios.delete(`/api/materials/${materialId}`);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to delete material');
     }
   };
@@ -177,7 +176,7 @@ const AdminInventory = () => {
       });
       setIsInventoryModalOpen(false);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to create inventory entry');
     }
   };
@@ -192,7 +191,7 @@ const AdminInventory = () => {
       setIsEditInventoryModalOpen(false);
       setEditingInventory(null);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to update inventory entry');
     }
   };
@@ -202,7 +201,7 @@ const AdminInventory = () => {
     try {
       await axios.delete(`/api/inventory/${id}`);
       fetchAllData();
-    } catch (err) {
+    } catch {
       alert('Failed to delete inventory record');
     }
   };

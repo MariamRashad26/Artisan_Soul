@@ -546,7 +546,12 @@ const ArtisanWorkshopClips = () => {
     }
   };
 
-  useEffect(() => { fetchClips(); }, []);
+  useEffect(() => {
+    const load = async () => {
+      await fetchClips();
+    };
+    load();
+  }, []);
 
   const filteredClips = filter === 'All' ? clips : clips.filter(c => c.tag === filter);
 

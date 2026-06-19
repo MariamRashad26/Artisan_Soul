@@ -3,10 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/db.js';
 
-// Load environment variables
 dotenv.config();
-
-// Connect to database
 connectDB();
 
 import authRoutes from './routes/authRoutes.js';
@@ -31,21 +28,40 @@ import settingRoutes from './routes/settingRoutes.js';
 
 const app = express();
 
-// Middleware
+// ✅ FIX: CORS - Vercel frontend aur localhost dono allow karo
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://artisan-soul.vercel.app',
+  'https://artisan-soul-git-main-marium.vercel.app',
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://artisan-soul.vercel.app',
-    process.env.FRONTEND_URL
-  ],
+  origin: (origin, callback) => {
+    // No origin = mobile app / Postman / curl - allow karo
+    if (!origin) return callback(null, true);
+
+    // Check karo allowed list mein hai ya nahi
+    // Ya FRONTEND_URL env variable se match karta hai
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      origin === process.env.FRONTEND_URL ||
+      /^https:\/\/artisan-soul-.*\.vercel\.app$/.test(origin);
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Blocked: ${origin}`);
+      callback(new Error(`CORS: ${origin} not allowed`));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// **Important: Uploaded Videos Serve Karne ke liye**
 app.use('/uploads', express.static('uploads'));
 
 // Routes
@@ -69,11 +85,9 @@ app.use('/api/work-orders', workOrderRoutes);
 app.use('/api/production', productionRoutes);
 app.use('/api/bespoke-designs', bespokeDesignRoutes);
 
-// Basic Route for testing
 app.get('/', (req, res) => {
-  res.send('Shoe Manufacturing API is running...');
+  res.send('Artisan Soul API is running ✅');
 });
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

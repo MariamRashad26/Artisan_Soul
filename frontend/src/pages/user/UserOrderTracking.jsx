@@ -108,7 +108,7 @@ const UserOrderTracking = () => {
           setOrder(prev => ({ ...prev, status: 'Cancelled' }));
           showToast('Commission cancelled successfully.', 'success');
           setShowSettingsDropdown(false);
-        } catch (err) {
+        } catch {
           showToast('Failed to cancel commission. Please try again.', 'error');
         }
       }

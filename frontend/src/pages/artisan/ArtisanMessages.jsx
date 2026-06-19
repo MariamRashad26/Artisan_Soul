@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -13,7 +13,7 @@ const ArtisanMessages = () => {
   const bottomRef = useRef(null);
 
   // Build thread list from this artisan's assigned work orders
-  const fetchThreads = async () => {
+  const fetchThreads = useCallback(async () => {
     try {
       const { data: wos } = await axios.get('/api/work-orders');
       const currentUserId = (user?._id || '').toString();
@@ -53,10 +53,10 @@ const ArtisanMessages = () => {
       setThreads([{ id: 'global', name: 'Atelier Floor', detail: 'Team-wide broadcast', patron: null, orderId: null }]);
       setLoadingThreads(false);
     }
-  };
+  }, [user]);
 
   // Fetch messages for active thread
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const { data } = await axios.get(`/api/chat?thread_id=${activeThreadId}`);
       setMessages(data);
@@ -64,17 +64,25 @@ const ArtisanMessages = () => {
     } catch (err) {
       console.error('Failed to fetch messages', err);
     }
-  };
+  }, [activeThreadId]);
 
   useEffect(() => {
-    if (user) fetchThreads();
-  }, [user]);
+    if (user) {
+      const load = async () => {
+        await fetchThreads();
+      };
+      load();
+    }
+  }, [user, fetchThreads]);
 
   useEffect(() => {
-    fetchMessages();
+    const load = async () => {
+      await fetchMessages();
+    };
+    load();
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [activeThreadId]);
+  }, [activeThreadId, fetchMessages]);
 
   const handleSendMessage = async () => {
     if (!messageInput.trim()) return;

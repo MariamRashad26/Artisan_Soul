@@ -99,20 +99,27 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log(`[Auth][login] Attempt for email: ${email}`);
+
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log(`[Auth][login] No user found for: ${email}`);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     if (!user.isVerified) {
+      console.log(`[Auth][login] User not verified: ${email}`);
       return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox for the verification link.' });
     }
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
+      console.log(`[Auth][login] Password mismatch for: ${email}`);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    console.log(`[Auth][login] Success: ${email}`);
 
     res.json({
       _id: user._id,

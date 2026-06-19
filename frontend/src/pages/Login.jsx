@@ -56,7 +56,7 @@ const Login = () => {
     try {
       await axiosInstance.post('/api/auth/resend-verification', { email });
       setResendStatus('sent');
-    } catch (err) {
+    } catch {
       setResendStatus('idle');
       setError('Failed to resend. Please try again.');
     }

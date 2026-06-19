@@ -16,4 +16,25 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/react-router-dom') || id.includes('node_modules/react-router/')) {
+            return 'vendor-router';
+          }
+          if (id.includes('node_modules/react-bootstrap') || id.includes('node_modules/bootstrap')) {
+            return 'vendor-bootstrap';
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'vendor-axios';
+          }
+        },
+      },
+    },
+  },
 })

@@ -8,10 +8,6 @@ const AdminCatalog = () => {
   const { token } = useAuth();
   const { showToast, showConfirm } = useToast();
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const response = await fetch('/api/products');
@@ -29,6 +25,11 @@ const AdminCatalog = () => {
       console.error('Fetch products error:', err);
     }
   };
+
+  useEffect(() => {
+    const loadProducts = async () => { await fetchProducts(); };
+    loadProducts();
+  }, []);
 
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

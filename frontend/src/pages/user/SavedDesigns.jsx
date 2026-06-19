@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -13,18 +13,21 @@ const SavedDesigns = () => {
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  const fetchDesigns = async () => {
+  const fetchDesigns = useCallback(async () => {
     try {
       const { data } = await axiosInstance.get('/api/bespoke-designs');
       setDesigns(data);
     } catch (err) {
       console.error('Failed to fetch designs', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchDesigns();
-  }, [user]);
+    const load = async () => {
+      await fetchDesigns();
+    };
+    load();
+  }, [user, fetchDesigns]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href).catch(() => {});

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
-import { useAuth } from '../../context/AuthContext';
 
 const STAGES = ['Design Prep', 'Cutting', 'Lasting', 'Stitching', 'Quality Control'];
 const STAGE_PROGRESS = [10, 30, 60, 80, 90];
@@ -17,11 +16,9 @@ const STAGE_DETAILS = [
 const ArtisanProductionUpdate = () => {
   const { id } = useParams(); // raw URL param e.g. "AS-5649"
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [orderData, setOrderData] = useState(null);
   const [dbId, setDbId] = useState(null);         // MongoDB _id — used for PUT
-  const [apiRef, setApiRef] = useState(null);     // The string the API knows (e.g. "#AS-5649")
   const [productionStage, setProductionStage] = useState(0);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [logs, setLogs] = useState([]);
@@ -45,9 +42,8 @@ const ArtisanProductionUpdate = () => {
         try {
           const { data } = await axios.get(`/api/orders/${encodeURIComponent(ref)}`);
           found = data;
-          setApiRef(ref); // remember which ref worked
           break;
-        } catch (_) { /* try next */ }
+        } catch { /* try next */ }
       }
 
       if (!found) {
@@ -68,10 +64,13 @@ const ArtisanProductionUpdate = () => {
           (wo.order_id?._id || wo.order_id || '').toString() === found._id.toString()
         );
         if (linked) setWorkOrderId(linked._id);
-      } catch (_) {}
+      } catch { /* ignored */ }
     };
 
-    fetchOrder();
+    const load = async () => {
+      await fetchOrder();
+    };
+    load();
   }, [id]);
 
   // ─── Advance to NEXT stage ──────────────────────────────────────────────────

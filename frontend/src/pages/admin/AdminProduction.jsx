@@ -90,7 +90,10 @@ const AdminProduction = () => {
   };
 
   useEffect(() => {
-    fetchProductionData();
+    const load = async () => {
+      await fetchProductionData();
+    };
+    load();
     // Poll every 30 seconds so artisan batch-status changes appear in real time
     const pollInterval = setInterval(fetchProductionData, 30000);
     return () => clearInterval(pollInterval);
@@ -111,7 +114,7 @@ const AdminProduction = () => {
       setIsBatchModalOpen(false);
       fetchProductionData();
       showToast('Production batch initiated successfully.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to initiate batch. Check all fields.', 'error');
     }
   };
@@ -128,7 +131,7 @@ const AdminProduction = () => {
       setIsMaintenanceModalOpen(false);
       fetchProductionData();
       showToast('Maintenance log created.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to log maintenance.', 'error');
     }
   };
@@ -146,7 +149,7 @@ const AdminProduction = () => {
       setEditingMaintenance(null);
       fetchProductionData();
       showToast('Maintenance log updated.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to update maintenance log.', 'error');
     }
   };
@@ -157,7 +160,7 @@ const AdminProduction = () => {
         await axios.delete(`/api/maintenance/${id}`);
         fetchProductionData();
         showToast('Maintenance entry deleted.', 'success');
-      } catch (err) {
+      } catch {
         showToast('Failed to delete maintenance log.', 'error');
       }
     });
@@ -177,7 +180,7 @@ const AdminProduction = () => {
       setEditingBatch(null);
       fetchProductionData();
       showToast('Production batch updated.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to update batch.', 'error');
     }
   };
@@ -188,7 +191,7 @@ const AdminProduction = () => {
         await axios.delete(`/api/production/batches/${id}`);
         fetchProductionData();
         showToast('Production batch deleted.', 'success');
-      } catch (err) {
+      } catch {
         showToast('Failed to delete batch.', 'error');
       }
     });
@@ -205,7 +208,7 @@ const AdminProduction = () => {
       setIsStageModalOpen(false);
       fetchProductionData();
       showToast('Stage definition added.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to add stage.', 'error');
     }
   };
@@ -222,7 +225,7 @@ const AdminProduction = () => {
       setEditingStage(null);
       fetchProductionData();
       showToast('Stage definition updated.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to update stage.', 'error');
     }
   };
@@ -233,7 +236,7 @@ const AdminProduction = () => {
         await axios.delete(`/api/production/stages/${id}`);
         fetchProductionData();
         showToast('Stage definition deleted.', 'success');
-      } catch (err) {
+      } catch {
         showToast('Failed to delete stage.', 'error');
       }
     });
@@ -245,7 +248,7 @@ const AdminProduction = () => {
         await axios.delete(`/api/production/stages/log/${id}`);
         fetchProductionData();
         showToast('Stage log deleted.', 'success');
-      } catch (err) {
+      } catch {
         showToast('Failed to delete stage log.', 'error');
       }
     });

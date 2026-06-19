@@ -1,9 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
 
 const STAGES = ['Design Prep', 'Cutting', 'Lasting', 'Stitching', 'Finished'];
+
+const formatElapsed = (startMs) => {
+  const elapsed = Math.floor((Date.now() - startMs) / 1000);
+  const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+  const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+};
 
 const ArtisanShiftClock = () => {
   const { user } = useAuth();
@@ -32,16 +40,7 @@ const ArtisanShiftClock = () => {
   const [stageLogs, setStageLogs] = useState([]);   // per-order time logs
   const [orderTimeSummary, setOrderTimeSummary] = useState({}); // orderId → total minutes
 
-  // --- Timer helpers ---
-  const formatElapsed = (startMs) => {
-    const elapsed = Math.floor((Date.now() - startMs) / 1000);
-    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-    const s = String(elapsed % 60).padStart(2, '0');
-    return `${h}:${m}:${s}`;
-  };
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user?._id) return;
     try {
       const [shiftRes, woRes] = await Promise.all([
@@ -110,13 +109,13 @@ const ArtisanShiftClock = () => {
         }
       }
 
-    } catch (err) {
-      console.error('Error fetching shift data', err);
+    } catch {
+      console.error('Error fetching shift data');
     }
-  };
+  }, [user, queryOrderId, queryStage]);
 
   // Load stage logs from localStorage (persisted per artisan)
-  const loadStageLogs = () => {
+  const loadStageLogs = useCallback(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(`stageLogs_${user?._id}`) || '[]');
       setStageLogs(stored);
@@ -128,12 +127,18 @@ const ArtisanShiftClock = () => {
         summary[log.orderId] += log.durationMin || 0;
       });
       setOrderTimeSummary(summary);
-    } catch (_) {}
-  };
+    } catch { /* ignored */ }
+  }, [user]);
 
   useEffect(() => {
-    if (user) { fetchData(); loadStageLogs(); }
-  }, [user]);
+    if (user) {
+      const load = async () => {
+        await fetchData();
+        loadStageLogs();
+      };
+      load();
+    }
+  }, [user, fetchData, loadStageLogs]);
 
   // Live shift timer tick
   useEffect(() => {
@@ -176,8 +181,8 @@ const ArtisanShiftClock = () => {
         });
       }
       await fetchData();
-    } catch (err) {
-      console.error(err);
+    } catch {
+      console.error('Error updating shift');
       alert('Error updating shift');
     }
   };
@@ -232,8 +237,8 @@ const ArtisanShiftClock = () => {
           const updatedLogs = [newOrderLog, ...(orderData.logs || [])];
           await axios.put(`/api/orders/${orderIdEncoded}`, { logs: updatedLogs });
         }
-      } catch (err) {
-        console.error('Failed to sync stage log to order history', err);
+      } catch {
+        console.error('Failed to sync stage log to order history');
       }
     }
     setIsTracking(false);

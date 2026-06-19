@@ -61,7 +61,8 @@ const AdminFinance = () => {
   };
 
   useEffect(() => {
-    fetchFinanceData();
+    const loadData = async () => { await fetchFinanceData(); };
+    loadData();
   }, []);
 
   // CRUD handlers for Revenue
@@ -77,7 +78,7 @@ const AdminFinance = () => {
       setIsRevenueModalOpen(false);
       fetchFinanceData();
       showToast('Revenue transaction logged.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to log revenue.', 'error');
     }
   };
@@ -95,7 +96,7 @@ const AdminFinance = () => {
       setEditingRevenue(null);
       fetchFinanceData();
       showToast('Revenue record updated.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to update revenue.', 'error');
     }
   };
@@ -108,7 +109,7 @@ const AdminFinance = () => {
           await axios.delete(`/api/finance/revenue/${id}`);
           fetchFinanceData();
           showToast('Revenue record deleted.', 'success');
-        } catch (err) {
+        } catch {
           showToast('Failed to delete revenue record.', 'error');
         }
       }
@@ -130,7 +131,7 @@ const AdminFinance = () => {
       setIsPurchaseModalOpen(false);
       fetchFinanceData();
       showToast('Purchase order logged.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to log purchase.', 'error');
     }
   };
@@ -150,7 +151,7 @@ const AdminFinance = () => {
       setEditingPurchase(null);
       fetchFinanceData();
       showToast('Purchase order updated.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to update purchase.', 'error');
     }
   };
@@ -163,7 +164,7 @@ const AdminFinance = () => {
           await axios.delete(`/api/finance/purchases/${id}`);
           fetchFinanceData();
           showToast('Purchase order deleted.', 'success');
-        } catch (err) {
+        } catch {
           showToast('Failed to delete purchase order.', 'error');
         }
       }

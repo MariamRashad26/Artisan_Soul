@@ -1,38 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axiosInstance from '../utils/axiosInstance';
 
 const Catalog = () => {
   const [activeCategory, setActiveCategory] = useState('Shoe Type');
   const [activeTag, setActiveTag] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const itemsPerPage = 6;
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // ✅ FIX: fetch() ki jagah axiosInstance use karo - VITE_API_URL automatically lagega
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
-      const data = await response.json();
-      
+      setLoading(true);
+      setError('');
+      const { data } = await axiosInstance.get('/api/products');
+
       const formattedData = data.map(p => ({
         id: p.product_id || p._id,
         name: p.name,
         detail: p.description,
-        price: "PKR " + p.price,
+        price: 'PKR ' + p.price,
         priceValue: p.price,
-        leather: p.details?.material || "Standard",
-        color: p.details?.color || "Standard",
-        type: p.category || "Formal", 
+        leather: p.details?.material || 'Standard',
+        color: p.details?.color || 'Standard',
+        type: p.category || 'Formal',
         img: p.imageUrl || 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop',
-        label: p.inStock && p.is_available !== false ? null : "Out of Stock"
+        label: p.inStock && p.is_available !== false ? null : 'Out of Stock',
       }));
-      
+
       setProducts(formattedData);
     } catch (err) {
       console.error('Fetch products error:', err);
+      setError('Could not load products. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,21 +48,20 @@ const Catalog = () => {
     { name: 'Shoe Type', icon: 'steps' },
     { name: 'Leather Type', icon: 'texture' },
     { name: 'Colorway', icon: 'palette' },
-    { name: 'Price Range', icon: 'sell' }
+    { name: 'Price Range', icon: 'sell' },
   ];
 
   const tagsByCategory = {
     'Shoe Type': ['All', ...new Set(products.map(p => p.type).filter(Boolean))],
     'Leather Type': ['All', ...new Set(products.map(p => p.leather).filter(Boolean))],
     'Colorway': ['All', ...new Set(products.map(p => p.color).filter(Boolean))],
-    'Price Range': ['All', 'Under 30,000', '30,000 - 45,000', 'Over 45,000']
+    'Price Range': ['All', 'Under 30,000', '30,000 - 45,000', 'Over 45,000'],
   };
 
   const currentTags = tagsByCategory[activeCategory] || tagsByCategory['Shoe Type'];
 
   const filteredProducts = products.filter(product => {
     if (activeTag === 'All') return true;
-    
     if (activeCategory === 'Shoe Type') return product.type === activeTag;
     if (activeCategory === 'Leather Type') return product.leather === activeTag;
     if (activeCategory === 'Colorway') return product.color === activeTag;
@@ -78,131 +85,123 @@ const Catalog = () => {
   };
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  if (loading) {
+    return (
+      <div className="min-vh-100 d-flex align-items-center justify-content-center">
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status"></div>
+          <p className="text-muted">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-vh-100 d-flex align-items-center justify-content-center">
+        <div className="text-center">
+          <span className="material-symbols-outlined fs-1 text-danger mb-3 d-block">error</span>
+          <p className="text-danger fw-bold">{error}</p>
+          <button onClick={fetchProducts} className="btn btn-primary mt-2">Try Again</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="row flex-grow-1 px-4 px-md-5 py-5 g-5 bg-background-light m-0 w-100">
-      {/* Sidebar Filters */}
-      <aside className="col-12 col-md-3 col-xl-2 d-flex flex-column gap-5">
-        <div>
-          <h1 className="text-primary text-xs fw-bold text-uppercase tracking-widest mb-4">Collections</h1>
-          <nav className="d-flex flex-column gap-2">
-            {categories.map((cat) => (
-              <button 
-                key={cat.name}
-                onClick={() => handleCategoryChange(cat.name)}
-                className={`d-flex align-items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-decoration-none border-0 text-start w-100 ${
-                  activeCategory === cat.name 
-                    ? 'bg-primary text-white shadow-lg shadow-primary-20 hover-elevate' 
-                    : 'bg-transparent text-secondary hover:bg-primary-10 hover:text-primary'
-                }`}
-              >
-                <span className="material-symbols-outlined fs-5">{cat.icon}</span>
-                <span className="small fw-bold">{cat.name}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-        
-        <div className="border-top border-primary-10 pt-4">
-          <h3 className="text-dark small fw-bold mb-3">Quick Select</h3>
-          <div className="d-flex flex-wrap gap-2">
-            {currentTags.map(tag => (
-              <button 
-                key={tag} 
-                onClick={() => handleTagChange(tag)}
-                className={`px-3 py-1 border rounded-pill text-xs font-medium transition-all ${
-                  activeTag === tag
-                    ? 'bg-primary border-primary text-white shadow-sm'
-                    : 'bg-white border-primary-10 text-dark hover:border-primary hover:text-primary'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-      </aside>
+    <div className="min-vh-100 bg-background-light font-display">
+      {/* Header */}
+      <div className="bg-white border-bottom px-4 py-5 text-center">
+        <h1 className="display-5 fw-black tracking-tight">Our Collection</h1>
+        <p className="text-muted">Handcrafted excellence, curated for you</p>
+      </div>
 
-      {/* Content Area */}
-      <div className="col-12 col-md-9 col-xl-10 d-flex flex-column gap-5">
-        <div className="d-flex flex-column gap-2">
-          <h2 className="text-dark display-4 fw-black tracking-tight font-serif">Luxury Footwear</h2>
-          <p className="text-muted fs-5">Meticulously handcrafted using the world's finest full-grain leathers.</p>
-        </div>
-
-        {/* Products Grid */}
-        <div className="row g-4">
-          {currentProducts.map(product => (
-            <div className="col-12 col-sm-6 col-lg-4" key={product.id}>
-              <Link to={`/product/${product.id}`} className="text-decoration-none group d-block">
-                <div className="d-flex flex-column gap-3 p-3 bg-white rounded-xl shadow-premium hover-elevate transition-all border border-light">
-                  <div className="position-relative w-100 rounded-lg overflow-hidden aspect-ratio-4-5 bg-background-light">
-                    <img 
-                      src={product.img} 
-                      alt={product.name} 
-                      className="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale"
-                    />
-                    <div className="position-absolute top-0 bottom-0 start-0 end-0 bg-dark bg-opacity-10 opacity-0 group-hover:opacity-100 transition-all"></div>
-                    {product.label && (
-                      <div className="position-absolute top-3 start-3 bg-white/90 px-3 py-1 rounded-pill text-xs fw-bold uppercase tracking-widest text-primary shadow-sm">
-                        {product.label}
-                      </div>
-                    )}
-                    <div className="position-absolute bottom-3 end-3 d-flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                      <button className="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center p-2 shadow">
-                        <span className="material-symbols-outlined fs-6">visibility</span>
-                      </button>
-                      <button className="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center p-2 shadow">
-                        <span className="material-symbols-outlined fs-6 text-white">add_shopping_cart</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-start px-1">
-                    <div>
-                      <h3 className="fs-6 fw-bold text-dark mb-0 group-hover:text-primary transition-all">{product.name}</h3>
-                      <p className="text-muted small mb-0">{product.detail}</p>
-                    </div>
-                    <span className="text-primary fw-bold">{product.price}</span>
-                  </div>
-                </div>
-              </Link>
-            </div>
+      <div className="container-xl py-6">
+        {/* Category Filters */}
+        <div className="d-flex gap-3 mb-4 flex-wrap">
+          {categories.map(cat => (
+            <button
+              key={cat.name}
+              onClick={() => handleCategoryChange(cat.name)}
+              className={`btn btn-sm d-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold ${
+                activeCategory === cat.name ? 'btn-primary' : 'btn-outline-secondary'
+              }`}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{cat.icon}</span>
+              {cat.name}
+            </button>
           ))}
         </div>
 
+        {/* Tag Filters */}
+        <div className="d-flex gap-2 mb-5 flex-wrap">
+          {currentTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => handleTagChange(tag)}
+              className={`btn btn-sm px-3 py-1 rounded-pill text-xs fw-bold ${
+                activeTag === tag ? 'btn-dark' : 'btn-outline-secondary opacity-60'
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+
+        {/* Products Grid */}
+        {paginatedProducts.length === 0 ? (
+          <div className="text-center py-20">
+            <span className="material-symbols-outlined fs-1 text-muted mb-3 d-block">inventory_2</span>
+            <p className="fw-bold text-muted">No products found in this category.</p>
+          </div>
+        ) : (
+          <div className="row g-4">
+            {paginatedProducts.map(product => (
+              <div key={product.id} className="col-12 col-sm-6 col-lg-4">
+                <Link to={`/product/${product.id}`} className="text-decoration-none">
+                  <div className="card border-0 shadow-sm h-100 rounded-3 overflow-hidden hover-shadow transition">
+                    <div className="position-relative overflow-hidden" style={{ height: 260 }}>
+                      <img
+                        src={product.img}
+                        alt={product.name}
+                        className="w-100 h-100 object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop';
+                        }}
+                      />
+                      {product.label && (
+                        <span className="badge bg-danger position-absolute top-0 end-0 m-2">{product.label}</span>
+                      )}
+                    </div>
+                    <div className="card-body p-4">
+                      <h5 className="fw-black text-dark mb-1">{product.name}</h5>
+                      <p className="text-muted small mb-2">{product.detail}</p>
+                      <p className="fw-bold text-primary mb-0">{product.price}</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="d-flex justify-content-center align-items-center gap-2 pt-5">
-            <button 
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className={`size-10 d-flex align-items-center justify-content-center rounded-xl border ${currentPage === 1 ? 'border-gray-100 text-gray-300' : 'border-primary-10 text-muted hover:text-primary hover:border-primary'} transition-all bg-white shadow-sm`}
-            >
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
-            
-            {Array.from({ length: totalPages }).map((_, idx) => (
-              <button 
-                key={idx}
-                onClick={() => setCurrentPage(idx + 1)}
-                className={`size-10 d-flex align-items-center justify-content-center rounded-xl font-medium shadow-sm border ${
-                  currentPage === idx + 1 
-                    ? 'bg-primary text-white border-primary fw-bold' 
-                    : 'border-primary-10 text-dark hover:text-primary hover:border-primary bg-white'
-                } transition-all`}
+          <div className="d-flex justify-content-center gap-2 mt-6">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`btn btn-sm px-3 ${currentPage === page ? 'btn-primary' : 'btn-outline-secondary'}`}
               >
-                {idx + 1}
+                {page}
               </button>
             ))}
-
-            <button 
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className={`size-10 d-flex align-items-center justify-content-center rounded-xl border ${currentPage === totalPages ? 'border-gray-100 text-gray-300' : 'border-primary-10 text-muted hover:text-primary hover:border-primary'} transition-all bg-white shadow-sm`}
-            >
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
           </div>
         )}
       </div>

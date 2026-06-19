@@ -45,16 +45,16 @@ const AdminArtisans = () => {
   };
 
   useEffect(() => {
-    fetchArtisans();
+    const loadArtisans = async () => { await fetchArtisans(); };
+    loadArtisans();
   }, []);
 
-  useEffect(() => {
-    if (selectedArtisan) {
-      setEditName(selectedArtisan.name);
-      setEditEmail(selectedArtisan.email || '');
-      setIsEditing(false);
-    }
-  }, [selectedArtisan]);
+  const handleSelectArtisan = (artisan) => {
+    setSelectedArtisan(artisan);
+    setEditName(artisan.name);
+    setEditEmail(artisan.email || '');
+    setIsEditing(false);
+  };
 
   const handleOnboardSubmit = async (e) => {
     e.preventDefault();
@@ -159,7 +159,7 @@ const AdminArtisans = () => {
                       <span className="material-symbols-outlined text-amber-500 fs-6">star</span>
                       <span className="text-xs fw-black text-dark">{artisan.rating}</span>
                    </div>
-                   <button onClick={() => setSelectedArtisan(artisan)} className="bg-transparent border-0 text-[9px] fw-black text-uppercase tracking-widest text-primary hover:text-dark transition">View Performance</button>
+                   <button onClick={() => handleSelectArtisan(artisan)} className="bg-transparent border-0 text-[9px] fw-black text-uppercase tracking-widest text-primary hover:text-dark transition">View Performance</button>
                 </div>
               </div>
             </div>

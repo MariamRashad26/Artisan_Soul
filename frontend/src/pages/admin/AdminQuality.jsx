@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 const AdminQuality = () => {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const { showToast, showConfirm } = useToast();
   const [reports, setReports] = useState([]);
   const [pendingQC, setPendingQC] = useState([]); // orders awaiting admin review
@@ -25,8 +25,8 @@ const AdminQuality = () => {
         issues: r.defects_found || 0,
         status: r.status === 'passed' || r.status === 'Passed' ? 'Passed' : r.status === 'failed' || r.status === 'Failed' ? 'Failed' : r.status
       })));
-    } catch (err) {
-      console.error('Failed to fetch QC reports', err);
+    } catch {
+      console.error('Failed to fetch QC reports');
     }
   };
 
@@ -43,14 +43,17 @@ const AdminQuality = () => {
         o.status === 'Quality Check' || o.phase === 'Quality Control'
       ));
       setInspectors((usersRes.data || []).filter(u => u.role === 'admin' || u.role === 'artisan'));
-    } catch (err) {
-      console.error('Failed to fetch QC dependencies', err);
+    } catch {
+      console.error('Failed to fetch QC dependencies');
     }
   };
 
   useEffect(() => {
-    fetchReports();
-    fetchDependencies();
+    const loadQualityData = async () => {
+      await fetchReports();
+      await fetchDependencies();
+    };
+    loadQualityData();
   }, []);
 
   const handleToggleStatus = async (report) => {
@@ -59,8 +62,8 @@ const AdminQuality = () => {
       await axios.put(`/api/qc/${report._id}`, { status: nextStatus });
       fetchReports();
       showToast(`Report status updated to: ${nextStatus}`, 'info');
-    } catch (err) {
-      console.error('Failed to update report status', err);
+    } catch {
+      console.error('Failed to update report status');
       showToast('Failed to update report status.', 'error');
     }
   };
@@ -73,8 +76,8 @@ const AdminQuality = () => {
           await axios.delete(`/api/qc/${id}`);
           fetchReports();
           showToast('Inspection report removed.', 'success');
-        } catch (err) {
-          console.error('Failed to delete report', err);
+        } catch {
+          console.error('Failed to delete report');
           showToast('Failed to delete report.', 'error');
         }
       }
@@ -94,8 +97,8 @@ const AdminQuality = () => {
       setIsModalOpen(false);
       fetchReports();
       showToast('Quality inspection report submitted.', 'success');
-    } catch (err) {
-      console.error('Failed to create QC report', err);
+    } catch {
+      console.error('Failed to create QC report');
       showToast('Failed to create QC report.', 'error');
     }
   };

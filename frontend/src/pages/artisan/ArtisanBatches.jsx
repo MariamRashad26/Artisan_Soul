@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -13,7 +13,7 @@ const ArtisanBatches = () => {
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [batchRes, stageRes, logRes] = await Promise.all([
@@ -30,21 +30,24 @@ const ArtisanBatches = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const load = async () => {
+      await fetchData();
+    };
+    load();
+  }, [fetchData]);
 
   // Update selectedBatch if the underlying list changes (to keep details up-to-date)
   useEffect(() => {
     if (selectedBatch) {
       const updated = batches.find(b => b._id === selectedBatch._id);
-      if (updated) {
+      if (updated && updated !== selectedBatch) {
         setSelectedBatch(updated);
       }
     }
-  }, [batches]);
+  }, [batches, selectedBatch]);
 
   const handleUpdateStage = async (stageId, statusVal) => {
     if (!selectedBatch) return;
@@ -292,7 +295,7 @@ const ArtisanBatches = () => {
                             await axios.put(`/api/production/batches/${selectedBatch._id}`, { status });
                             showToast(`Batch status updated to: ${status}`, 'success');
                             await fetchData();
-                          } catch (err) {
+                          } catch {
                             showToast('Failed to update batch status.', 'error');
                           }
                         }}

@@ -228,24 +228,24 @@ const Craftsmanship = () => {
     return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : url;
   };
 
-  const fetchClips = async () => {
-    try {
-      const { data } = await axios.get('/api/clips');
-      const liveClips = data.filter(c => c.status === 'Live');
-      
-      setClips(liveClips);
-      
-      if (liveClips.length > 0 && !currentClip) {
-        setCurrentClip(liveClips[0]);
-      }
-    } catch (error) {
-      console.error("Error fetching clips:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchClips = async () => {
+      try {
+        const { data } = await axios.get('/api/clips');
+        const liveClips = data.filter(c => c.status === 'Live');
+        
+        setClips(liveClips);
+        
+        if (liveClips.length > 0) {
+          setCurrentClip(prev => prev || liveClips[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching clips:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchClips();
   }, []);
 

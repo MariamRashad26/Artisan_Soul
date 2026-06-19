@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -13,14 +13,14 @@ const UserDashboard = () => {
 
   const [notifications, setNotifications] = useState([]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/notifications');
       setNotifications(data);
     } catch (err) {
       console.error('Failed to fetch notifications', err);
     }
-  };
+  }, []);
 
   const handleMarkAllRead = async () => {
     try {
@@ -44,11 +44,16 @@ const UserDashboard = () => {
         console.error(err);
       }
     };
-    fetchOrders();
-    fetchNotifications();
+
+    const load = async () => {
+      await fetchOrders();
+      await fetchNotifications();
+    };
+    load();
+
     const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   return (
     <div className="p-4 lg:p-10 bg-white animate-in fade-in duration-700 position-relative">
@@ -80,7 +85,7 @@ const UserDashboard = () => {
                 {notifications.map(notif => (
                   <div key={notif._id} className={`p-3 rounded-xl transition ${!notif.read ? 'bg-primary-5' : 'hover:bg-gray-50'}`}>
                     <p className="text-sm fw-medium text-dark mb-1">{notif.message}</p>
-                    <span className="text-[10px] text-secondary fw-bold text-uppercase tracking-widest">{new Date(notif.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-[10px] text-secondary fw-bold text-uppercase tracking-widest">{notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                   </div>
                 ))}
                 {notifications.length === 0 && (

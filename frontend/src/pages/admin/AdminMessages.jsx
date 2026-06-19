@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -13,7 +13,7 @@ const AdminMessages = () => {
   const bottomRef = useRef(null);
 
   // Fetch all distinct threads (grouped conversations)
-  const fetchThreads = async () => {
+  const fetchThreads = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/chat/threads');
       const mapped = data.map(t => ({
@@ -28,33 +28,35 @@ const AdminMessages = () => {
       }
       setThreads(mapped);
       setLoadingThreads(false);
-    } catch (err) {
-      console.error('Failed to fetch threads', err);
+    } catch {
+      console.error('Failed to fetch threads');
       setThreads([{ id: 'global', name: 'Atelier Floor (Global)', detail: 'Broadcast to all staff', time: '' }]);
       setLoadingThreads(false);
     }
-  };
+  }, []);
 
   // Fetch messages for the active thread
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const { data } = await axios.get(`/api/chat?thread_id=${activeThreadId}`);
       setMessages(data);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    } catch (err) {
-      console.error('Failed to fetch messages', err);
+    } catch {
+      console.error('Failed to fetch messages');
     }
-  };
-
-  useEffect(() => {
-    fetchThreads();
-  }, []);
-
-  useEffect(() => {
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
   }, [activeThreadId]);
+
+  useEffect(() => {
+    const loadThreads = async () => { await fetchThreads(); };
+    loadThreads();
+  }, [fetchThreads]);
+
+  useEffect(() => {
+    const loadMessages = async () => { await fetchMessages(); };
+    loadMessages();
+    const interval = setInterval(async () => { await fetchMessages(); }, 5000);
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
 
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
@@ -68,8 +70,8 @@ const AdminMessages = () => {
       setMessageInput('');
       fetchMessages();
       fetchThreads();
-    } catch (err) {
-      console.error('Failed to send message', err);
+    } catch {
+      console.error('Failed to send message');
     }
   };
 
@@ -78,8 +80,8 @@ const AdminMessages = () => {
     try {
       await axios.delete(`/api/chat/${msgId}`);
       fetchMessages();
-    } catch (err) {
-      console.error('Failed to delete message', err);
+    } catch {
+      console.error('Failed to delete message');
     }
   };
 

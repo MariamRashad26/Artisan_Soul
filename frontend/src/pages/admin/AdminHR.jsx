@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from '../../utils/axiosInstance';
@@ -55,12 +55,12 @@ const AdminHR = () => {
     status: 'Present'
   });
 
-  const showToast = (message, type = 'success') => {
+  const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 4000);
-  };
+  }, []);
 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     setLoading(true);
     try {
       const [salariesData, shiftsData, attendanceData] = await Promise.all([
@@ -70,7 +70,7 @@ const AdminHR = () => {
       ]);
       setSalaries(salariesData);
       setShifts(shiftsData);
-    console.log('Shifts loaded', shiftsData);
+      console.log('Shifts loaded', shiftsData);
       setAttendance(attendanceData);
     } catch (err) {
       console.error('Failed to load core HR data', err);
@@ -85,19 +85,21 @@ const AdminHR = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
   useEffect(() => {
-    // Refetch data on tab change to keep UI up‑to‑date
+    // Refetch data on tab change to keep UI up-to-date
     fetchAllData();
-  }, [activeTab]);
-// Auto‑refresh shifts every 10 seconds when on Shifts tab
-useEffect(() => {
-  if (activeTab !== 'shifts') return;
-  const interval = setInterval(() => {
-    fetchAllData();
-  }, 10000);
-  return () => clearInterval(interval);
-}, [activeTab]);
+  }, [activeTab, fetchAllData]);
+
+  // Auto-refresh shifts every 10 seconds when on Shifts tab
+  useEffect(() => {
+    if (activeTab !== 'shifts') return;
+    const interval = setInterval(() => {
+      fetchAllData();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [activeTab, fetchAllData]);
 
   // Format date helper
   const formatDate = (dateStr) => {

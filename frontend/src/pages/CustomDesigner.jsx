@@ -13,7 +13,7 @@ const CustomDesigner = () => {
   const paramBaseModel = searchParams.get('baseModel') || 'Heritage Sovereign';
   const paramBasePrice = parseInt(searchParams.get('basePrice')) || 850;
   const paramImage = searchParams.get('image') || "https://lh3.googleusercontent.com/aida-public/AB6AXuAOGKc254-rwbfp-_dbrqr32s6HEZexzzJ118k1CiPTwI-XoVZiAe6MtTdihL6hfeR3-5Ug4-pwTlEgLxpLhw-LQOL9JvBOZObPh7RyPp-0TkklPcCWMVkPIN1_V_qfaQ80PR1ESd5II0s1Za80ZGH2hJLwm_21mwuld3U-BDnu1EHWU-1V73CIY32gveELeAugBrWvoyc0lOXE4X2jOHyOFut_oFZfPTqcZ-9vA786Vyym3rCg3sTpe21zBkinyCeIlA8cNlKBLq2V";
-  const paramId = searchParams.get('id') || 'bespoke-' + Math.floor(Math.random()*1000);
+  const [paramId] = useState(() => searchParams.get('id') || 'bespoke-' + Math.floor(Math.random()*1000));
 
   const [activeTab, setActiveTab] = useState('Build');
   const [zoom, setZoom] = useState(false);

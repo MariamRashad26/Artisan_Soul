@@ -133,42 +133,6 @@ const AdminOrders = () => {
     }
   };
 
-  const handleExecute = async (id) => {
-    const stages = ['Design Prep', 'Cutting', 'Lasting', 'Stitching', 'Finished'];
-    const progresses = [0, 15, 30, 65, 100];
-    
-    const targetOrder = orders.find(o => o.id === id);
-    if (!targetOrder) return;
-    
-    let currentIdx = stages.indexOf(targetOrder.stage);
-    if (currentIdx === -1) currentIdx = 0;
-    if (currentIdx >= stages.length - 1) return;
-    
-    const nextIdx = currentIdx + 1;
-    const isFinished = nextIdx === stages.length - 1;
-    
-    try {
-      await axiosInstance.put(`/api/orders/${encodeURIComponent(id)}`, {
-        phase: stages[nextIdx],
-        progress: progresses[nextIdx]
-      });
-      
-      setOrders(orders.map(order => 
-        order.id === id 
-          ? { 
-              ...order, 
-              stage: stages[nextIdx], 
-              progress: progresses[nextIdx], 
-              status: isFinished ? 'Completed' : order.status, 
-              color: isFinished ? 'emerald-500' : order.color 
-            }
-          : order
-      ));
-    } catch (error) {
-      console.error("Failed to advance order", error);
-    }
-  };
-
   return (
     <div className="p-8 lg:p-12 animate-in fade-in duration-1000">
       {/* Registry Navigation & Title */}

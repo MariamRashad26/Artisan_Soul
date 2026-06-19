@@ -14,7 +14,10 @@ const AdminNotifications = () => {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    const load = async () => {
+      await fetchNotifications();
+    };
+    load();
   }, []);
 
   const handleMarkRead = async (id) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -17,7 +17,7 @@ const ArtisanMaterials = () => {
     quantity_used: ''
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [logRes, matRes, orderRes, woRes] = await Promise.all([
         axios.get('/api/raw-materials/consume'),
@@ -69,13 +69,16 @@ const ArtisanMaterials = () => {
     } catch(err) {
       console.error('Materials fetch error:', err);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
-      fetchData();
+      const load = async () => {
+        await fetchData();
+      };
+      load();
     }
-  }, [user]);
+  }, [user, fetchData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

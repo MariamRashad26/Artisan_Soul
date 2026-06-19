@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../utils/axiosInstance';
@@ -23,7 +23,7 @@ const ArtisanLayout = () => {
     return `${h}:${m}:${s}`;
   };
 
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     if (!user?._id) return;
     try {
       const { data } = await axios.get('/api/hr/attendance');
@@ -35,10 +35,10 @@ const ArtisanLayout = () => {
         );
       });
       setAttendanceRecord(activeRecord || null);
-    } catch (err) {
-      console.error('Attendance fetch error', err);
+    } catch {
+      console.error('Attendance fetch error');
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -48,7 +48,7 @@ const ArtisanLayout = () => {
     return () => {
       window.removeEventListener('attendanceChanged', fetchAttendance);
     };
-  }, [user]);
+  }, [user, fetchAttendance]);
 
   // Run timer when checked in
   useEffect(() => {
@@ -99,7 +99,7 @@ const ArtisanLayout = () => {
       // Store record with check_out so sidebar shows "Shift Complete"
       setAttendanceRecord(data);
       window.dispatchEvent(new Event('attendanceChanged'));
-    } catch (err) {
+    } catch {
       alert('Check-out failed.');
     } finally {
       setAttendanceLoading(false);

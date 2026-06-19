@@ -55,10 +55,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (name, email, password) => {
+    const register = async (name, email, password, role = 'user') => {
         try {
-            const { data } = await axiosInstance.post('/api/auth/register', { name, email, password });
-            // Auto-login: backend now returns a token immediately on register
+            const { data } = await axiosInstance.post('/api/auth/register', { name, email, password, role });
+
+            // Agar verification required hai to auto-login mat karo
+            if (data.requiresVerification) {
+                return {
+                    success: true,
+                    message: data.message || 'Please check your email to verify your account.',
+                    requiresVerification: true,
+                    autoLoggedIn: false,
+                };
+            }
+
+            // Agar token mila to auto-login
             if (data.token) {
                 setToken(data.token);
                 const userData = {
@@ -70,12 +81,12 @@ export const AuthProvider = ({ children }) => {
                 setUser(userData);
                 localStorage.setItem('user', JSON.stringify(userData));
             }
-            return { 
-                success: true, 
-                message: data.message, 
-                autoLoggedIn: !!data.token, 
-                requiresVerification: !!data.requiresVerification,
-                devVerifyUrl: data.devVerifyUrl 
+
+            return {
+                success: true,
+                message: data.message,
+                autoLoggedIn: !!data.token,
+                requiresVerification: false,
             };
         } catch (error) {
             const message = error.response?.data?.message || 'Registration failed';
@@ -83,13 +94,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-
+    // ✅ FIX: window.location.href nahi - React Router navigate use hoga
+    // Logout sirf state clear karta hai, navigation component handle karega
     const logout = () => {
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
     };
 
     const refreshUser = () => fetchUserProfile();

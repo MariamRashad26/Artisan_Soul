@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 
@@ -9,7 +9,7 @@ const ArtisanMaintenance = () => {
   const [formData, setFormData] = useState({ machine: '', issue: '', urgency: 'low' });
   const [editingLog, setEditingLog] = useState(null);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/maintenance');
       setLogs(data.map(l => ({
@@ -24,11 +24,12 @@ const ArtisanMaintenance = () => {
     } catch(err) {
       console.error(err);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    const load = async () => { await fetchLogs(); };
+    load();
+  }, [fetchLogs]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

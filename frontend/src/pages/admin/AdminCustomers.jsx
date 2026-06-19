@@ -5,8 +5,6 @@ import { useToast } from '../../context/ToastContext';
 
 const AdminCustomers = () => {
   const [customers, setCustomers] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { showToast, showConfirm } = useToast();
 
   const fetchCustomers = async () => {
@@ -37,13 +35,14 @@ const AdminCustomers = () => {
       setCustomers(patrons);
     } catch (error) {
       console.error('Error fetching customers', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCustomers();
+    const load = async () => {
+      await fetchCustomers();
+    };
+    load();
   }, []);
 
   const handleDeleteCustomer = async (customerId) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,13 +11,7 @@ const AdminSuppliers = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
 
-  useEffect(() => {
-    if (token) {
-      fetchSuppliers();
-    }
-  }, [token]);
-
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     try {
       const response = await fetch('/api/suppliers', {
         headers: {
@@ -35,7 +29,14 @@ const AdminSuppliers = () => {
       console.error('Fetch suppliers error:', err);
       setSuppliers([]);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      const loadSuppliers = async () => { await fetchSuppliers(); };
+      loadSuppliers();
+    }
+  }, [token, fetchSuppliers]);
 
   const filteredSuppliers = Array.isArray(suppliers) ? suppliers.filter(s => 
     (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
