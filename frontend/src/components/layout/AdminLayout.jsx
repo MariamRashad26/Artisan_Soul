@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -6,6 +7,7 @@ const AdminLayout = () => {
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -89,11 +91,84 @@ const AdminLayout = () => {
         </div>
       </aside>
 
+      {/* Mobile Sidebar Drawer */}
+      {isMobileSidebarOpen && (
+        <div className="position-fixed inset-0 z-50 d-lg-none">
+          {/* Backdrop */}
+          <div 
+            className="position-absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          ></div>
+          {/* Drawer Content */}
+          <aside className="position-absolute left-0 top-0 h-100 w-80 bg-dark d-flex flex-column shadow-2xl animate-in slide-in-from-left duration-300">
+            <div className="p-6 d-flex align-items-center justify-content-between border-bottom border-white/10">
+              <Link to="/" className="d-flex align-items-center gap-4 group text-decoration-none" onClick={() => setIsMobileSidebarOpen(false)}>
+                <div className="size-10 bg-primary rounded-xl d-flex align-items-center justify-content-center text-white">
+                  <span className="material-symbols-outlined fs-4">diamond</span>
+                </div>
+                <div>
+                  <h1 className="font-serif fs-5 fw-black text-white leading-none tracking-tighter mb-0 lowercase">Artisan.Soul</h1>
+                  <span className="text-[9px] fw-black text-uppercase tracking-[0.2em] text-primary-20">Command Center</span>
+                </div>
+              </Link>
+              <button 
+                onClick={() => setIsMobileSidebarOpen(false)} 
+                className="btn btn-link text-white/50 hover:text-white p-0 d-flex align-items-center justify-content-center text-decoration-none"
+              >
+                <span className="material-symbols-outlined fs-3">close</span>
+              </button>
+            </div>
+            
+            <nav className="flex-grow-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+              {navItems.map((item) => {
+                const isActive = currentPath === item.path || (item.path !== '/admin' && currentPath.startsWith(item.path));
+                return (
+                  <Link 
+                    key={item.path} 
+                    to={item.path} 
+                    onClick={() => setIsMobileSidebarOpen(false)}
+                    className={`d-flex align-items-center justify-content-between px-5 py-3 rounded-2xl transition duration-500 group text-decoration-none ${isActive ? 'bg-primary text-white shadow-[0_4px_20px_rgba(189,81,13,0.3)]' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <div className="d-flex align-items-center gap-4">
+                      <span className={`material-symbols-outlined fs-5 ${isActive ? 'text-white' : 'group-hover:text-primary transition-colors'}`}>{item.icon}</span>
+                      <span className={`text-xs fw-black text-uppercase tracking-widest ${isActive ? 'text-white' : ''}`}>{item.label}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="p-6 border-top border-white/10 bg-black/20">
+              <div className="p-4 rounded-3xl border border-white/10 bg-white/5 d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center gap-4">
+                   <div className="size-10 rounded-xl bg-stone-800 overflow-hidden border border-primary/50 shadow-sm">
+                     <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200" alt="Admin" className="w-100 h-100 object-cover" />
+                   </div>
+                   <div className="d-flex flex-column">
+                     <span className="text-xs fw-black text-white tracking-tight">{user?.name || 'Antonio Rossi'}</span>
+                     <span className="text-[9px] fw-black text-uppercase tracking-widest text-primary">Head Curator</span>
+                   </div>
+                </div>
+                <button onClick={handleLogout} className="size-8 bg-transparent border-0 rounded-lg d-flex align-items-center justify-content-center text-white/30 hover:text-rose-500 hover:bg-white/5 transition duration-500">
+                  <span className="material-symbols-outlined fs-5">logout</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
       {/* Main Workspace Area */}
       <main className="flex-grow-1 overflow-y-auto w-100 bg-background-light relative">
         {/* Consistent Light Header */}
         <header className="sticky-top top-0 z-40 bg-white/80 backdrop-blur-xl border-bottom border-stone-200 px-8 py-5 h-20 d-flex align-items-center justify-content-between shadow-sm">
-          <div className="d-flex align-items-center gap-8">
+          <div className="d-flex align-items-center gap-4">
+            <button 
+              onClick={() => setIsMobileSidebarOpen(true)} 
+              className="btn btn-link text-dark p-0 d-lg-none d-flex align-items-center justify-content-center me-2 text-decoration-none"
+            >
+              <span className="material-symbols-outlined fs-2">menu</span>
+            </button>
             <h2 className="display-6 fw-black font-serif text-dark tracking-tighter mb-0 lowercase">Overview.</h2>
           </div>
 

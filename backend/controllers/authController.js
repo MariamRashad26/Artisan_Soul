@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import User from '../models/User.js';
-import sendEmail from '../utils/sendEmail.js';
 
 // Generate JWT
 const generateToken = (id) => {
@@ -36,21 +35,6 @@ export const registerUser = async (req, res) => {
     });
 
     if (user) {
-      // Send welcome email - fire-and-forget, non-blocking
-      const welcomeUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
-      const html = `
-        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #fafaf9;">
-          <h2 style="color: #1c1917; font-size: 1.5rem; margin-bottom: 8px;">Welcome to Artisan Soul</h2>
-          <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">Dear ${user.name},</p>
-          <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">Thank you for registering at Artisan Soul. Your account is active, and you can now log in to commission custom designs and track your orders.</p>
-          <a href="${welcomeUrl}" style="display: inline-block; margin: 24px 0; padding: 14px 32px; background: #1c1917; color: white; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">Log In to My Account</a>
-          <p style="color: #a8a29e; font-size: 0.8rem;">If you did not create this account, please ignore this email.</p>
-        </div>
-      `;
-
-      sendEmail(email, 'Welcome to Artisan Soul', html)
-        .catch(emailErr => console.error(`[Register] Welcome email failed: ${emailErr.message}`));
-
       // Return token immediately for auto-login
       res.status(201).json({
         _id: user._id,
@@ -86,13 +70,6 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Auto-verify if user is not verified yet
-    if (!user.isVerified) {
-      user.isVerified = true;
-      await user.save();
-      console.log(`[Auth][login] User auto-verified on login: ${email}`);
-    }
-
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       console.log(`[Auth][login] Password mismatch for: ${email}`);
@@ -113,33 +90,14 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// @desc    Verify email
+// @desc    Verify email (dummy/bypassed)
 // @route   GET /api/auth/verify/:token
 // @access  Public
 export const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.params;
-    const user = await User.findOne({
-      verifyToken: token,
-      verifyTokenExpiry: { $gt: new Date() },
-    });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification link.' });
-    }
-
-    user.isVerified = true;
-    user.verifyToken = undefined;
-    user.verifyTokenExpiry = undefined;
-    await user.save();
-
-    res.json({ message: 'Email verified successfully. You can now log in.' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  res.json({ message: 'Email verification bypassed. Account is fully verified.' });
 };
 
-// @desc    Forgot password — send reset email
+// @desc    Forgot password — log reset url (no SMTP)
 // @route   POST /api/auth/forgot-password
 // @access  Public
 export const forgotPassword = async (req, res) => {
@@ -148,8 +106,7 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      // Don't reveal whether email exists
-      return res.json({ message: 'If that email is registered, a reset link has been sent.' });
+      return res.json({ message: 'If that email is registered, a reset link has been generated.' });
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -157,24 +114,12 @@ export const forgotPassword = async (req, res) => {
     user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    const html = `
-      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #fafaf9;">
-        <h2 style="color: #1c1917; font-size: 1.5rem; margin-bottom: 8px;">Password Reset — Artisan Soul</h2>
-        <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">We received a request to reset your password. Click the button below to set a new password.</p>
-        <a href="${resetUrl}" style="display: inline-block; margin: 24px 0; padding: 14px 32px; background: #1c1917; color: white; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">Reset My Password</a>
-        <p style="color: #a8a29e; font-size: 0.8rem;">This link expires in 1 hour. If you did not request this, please ignore this email.</p>
-      </div>
-    `;
-
-    // Fire-and-forget — respond immediately, never block on SMTP
-    sendEmail(email, 'Reset your Artisan Soul password', html)
-      .then(() => console.log(`[ForgotPassword] ✅ Reset email sent to ${email}`))
-      .catch(emailErr => console.error(`[ForgotPassword] ❌ Email failed: ${emailErr.message}`));
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+    console.log(`[ForgotPassword] Generated reset link for ${email}: ${resetUrl}`);
 
     res.json({
-      message: 'If that email is registered, a reset link has been sent.',
-      devResetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined
+      message: 'If that email is registered, a reset link has been generated.',
+      devResetUrl: resetUrl
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -382,53 +327,9 @@ export const createStaffAccount = async (req, res) => {
   }
 };
 
-// @desc    Resend verification email
+// @desc    Resend verification email (dummy/bypassed)
 // @route   POST /api/auth/resend-verification
 // @access  Public
 export const resendVerificationEmail = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
-    }
-
-    const user = await User.findOne({ email });
-
-    // Always respond the same to avoid enumeration
-    const okMessage = 'If that email is registered and unverified, a new verification link has been sent.';
-
-    if (!user || user.isVerified) {
-      return res.json({ message: okMessage });
-    }
-
-    // Generate a fresh token
-    const verifyToken = crypto.randomBytes(32).toString('hex');
-    user.verifyToken = verifyToken;
-    user.verifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    await user.save();
-
-    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verifyToken}`;
-    const html = `
-      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #fafaf9;">
-        <h2 style="color: #1c1917; font-size: 1.5rem; margin-bottom: 8px;">Verify your Artisan Soul account</h2>
-        <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">Dear ${user.name},</p>
-        <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">You requested a new verification link. Click the button below to verify your email address.</p>
-        <a href="${verifyUrl}" style="display: inline-block; margin: 24px 0; padding: 14px 32px; background: #BD510D; color: white; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">Verify My Account</a>
-        <p style="color: #a8a29e; font-size: 0.8rem;">This link expires in 24 hours. If you did not register, please ignore this email.</p>
-      </div>
-    `;
-
-    // Fire-and-forget — respond immediately, never block on SMTP
-    sendEmail(email, 'Verify your Artisan Soul account', html)
-      .then(() => console.log(`[Resend] ✅ Verification email sent to ${email}`))
-      .catch(emailErr => console.error(`[Resend] ❌ Email failed: ${emailErr.message}`));
-
-    res.json({
-      message: okMessage,
-      devVerifyUrl: process.env.NODE_ENV !== 'production' ? verifyUrl : undefined
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  res.json({ message: 'Verification is bypassed. Your account is already verified.' });
 };

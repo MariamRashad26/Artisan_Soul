@@ -57,6 +57,7 @@ const Navbar = () => {
                     
                     {user ? (
                         <div className="d-none d-md-flex align-items-center gap-3 ms-2">
+                           <Link to={user.role === 'admin' ? '/admin' : user.role === 'artisan' ? '/artisan' : '/user/tracker'} className="text-secondary hover:text-primary transition fs-6 fw-medium text-decoration-none">Dashboard</Link>
                            <div className="size-8 bg-primary/10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold text-xs uppercase" title={user.name}>
                                {user.name?.charAt(0) || 'U'}
                            </div>
@@ -101,9 +102,14 @@ const Navbar = () => {
                             </Link>
                             
                             {user ? (
-                                <button onClick={() => { setIsMenuOpen(false); handleLogout(); }} className="text-danger fs-4 fw-bold text-decoration-none border-0 bg-transparent text-start pb-4 pt-4 d-flex justify-content-between align-items-center transition w-100">
-                                    Sign Out <span className="material-symbols-outlined text-danger fs-3">logout</span>
-                                </button>
+                                <>
+                                    <Link onClick={() => setIsMenuOpen(false)} to={user.role === 'admin' ? '/admin' : user.role === 'artisan' ? '/artisan' : '/user/tracker'} className="text-dark fs-4 fw-bold text-decoration-none border-bottom border-gray-50 pb-4 pt-4 d-flex justify-content-between align-items-center hover:text-primary transition">
+                                        Dashboard <span className="material-symbols-outlined text-secondary fs-3">dashboard</span>
+                                    </Link>
+                                    <button onClick={() => { setIsMenuOpen(false); handleLogout(); }} className="text-danger fs-4 fw-bold text-decoration-none border-0 bg-transparent text-start pb-4 pt-4 d-flex justify-content-between align-items-center transition w-100">
+                                        Sign Out <span className="material-symbols-outlined text-danger fs-3">logout</span>
+                                    </button>
+                                </>
                             ) : (
                                 <Link onClick={() => setIsMenuOpen(false)} to="/login" className="text-primary fs-4 fw-bold text-decoration-none border-0 bg-transparent text-start pb-4 pt-4 d-flex justify-content-between align-items-center transition w-100">
                                     Login / Register <span className="material-symbols-outlined text-primary fs-3">login</span>
