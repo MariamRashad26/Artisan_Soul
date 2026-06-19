@@ -19,11 +19,12 @@ export const getRevenues = async (req, res) => {
 // @route   POST /api/finance/purchases
 // @access  Private/Admin
 export const createPurchase = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { raw_material_id, supplier_id, quantity, total_cost, status } = req.body;
 
+  let session = null;
   try {
-    const { raw_material_id, supplier_id, quantity, total_cost, status } = req.body;
+    session = await mongoose.startSession();
+    session.startTransaction();
 
     const purchase = await MaterialPurchase.create([{
       raw_material_id, supplier_id, quantity, total_cost, status
@@ -38,12 +39,42 @@ export const createPurchase = async (req, res) => {
     }
 
     await session.commitTransaction();
+    session.endSession();
     res.status(201).json(purchase[0]);
   } catch (error) {
-    await session.abortTransaction();
+    if (session) {
+      try { await session.abortTransaction(); } catch (e) {}
+      session.endSession();
+    }
+
+    const isTransactionUnsupported =
+      error.message?.includes('replica set') ||
+      error.message?.includes('Transaction') ||
+      error.message?.includes('transaction') ||
+      error.code === 20;
+
+    if (isTransactionUnsupported) {
+      console.warn('[Finance] MongoDB standalone detected — using non-transactional fallback.');
+      try {
+        const purchase = await MaterialPurchase.create({
+          raw_material_id, supplier_id, quantity, total_cost, status
+        });
+
+        if (status === 'Completed' || status === 'Received') {
+          const material = await RawMaterial.findById(raw_material_id);
+          if (material) {
+            material.stock_quantity += quantity;
+            await material.save();
+          }
+        }
+
+        return res.status(201).json(purchase);
+      } catch (fallbackError) {
+        return res.status(500).json({ message: fallbackError.message });
+      }
+    }
+
     res.status(500).json({ message: error.message });
-  } finally {
-    session.endSession();
   }
 };
 

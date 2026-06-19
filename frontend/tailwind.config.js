@@ -1,7 +1,14 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    path.resolve(__dirname, "./index.html").replace(/\\/g, '/'),
+    path.resolve(__dirname, "./src/**/*.{js,ts,jsx,tsx}").replace(/\\/g, '/'),
   ],
   theme: {
     extend: {
@@ -12,7 +19,7 @@ export default {
       fontFamily: {
         serif: ['Inter', 'sans-serif'],
         display: ['Inter', 'sans-serif'],
-      }
+      },
     },
   },
   plugins: [],

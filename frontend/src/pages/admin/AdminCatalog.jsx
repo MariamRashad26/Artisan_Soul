@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import axios from '../../utils/axiosInstance';
 import { useToast } from '../../context/ToastContext';
 
 const AdminCatalog = () => {
   const [products, setProducts] = useState([]);
-  const { token } = useAuth();
   const { showToast, showConfirm } = useToast();
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
-      const data = await response.json();
+      const response = await axios.get('/api/products');
+      const data = response.data;
       const formattedData = data.map(p => ({
         ...p,
         id: p.product_id || p._id,
@@ -27,8 +26,7 @@ const AdminCatalog = () => {
   };
 
   useEffect(() => {
-    const loadProducts = async () => { await fetchProducts(); };
-    loadProducts();
+    fetchProducts();
   }, []);
 
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
@@ -75,25 +73,14 @@ const AdminCatalog = () => {
     };
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
-        setIsDeployModalOpen(false);
-        fetchProducts();
-        showToast('Product deployed to catalog.', 'success');
-      } else {
-        const errorData = await response.json();
-        showToast(`Failed to deploy: ${errorData.message}`, 'error');
-      }
+      await axios.post('/api/products', payload);
+      setIsDeployModalOpen(false);
+      fetchProducts();
+      showToast('Product deployed to catalog.', 'success');
     } catch (err) {
       console.error(err);
-      showToast('Network error while deploying.', 'error');
+      const errMsg = err.response?.data?.message || 'Network error while deploying.';
+      showToast(`Failed to deploy: ${errMsg}`, 'error');
     }
   };
 
@@ -114,25 +101,14 @@ const AdminCatalog = () => {
     };
 
     try {
-      const response = await fetch(`/api/products/${editingProduct._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
-        setIsEditModalOpen(false);
-        fetchProducts();
-        showToast('Product stock updated.', 'success');
-      } else {
-        const errorData = await response.json();
-        showToast(`Failed to update: ${errorData.message}`, 'error');
-      }
+      await axios.put(`/api/products/${editingProduct._id}`, payload);
+      setIsEditModalOpen(false);
+      fetchProducts();
+      showToast('Product stock updated.', 'success');
     } catch (err) {
       console.error(err);
-      showToast('Network error while updating.', 'error');
+      const errMsg = err.response?.data?.message || 'Network error while updating.';
+      showToast(`Failed to update: ${errMsg}`, 'error');
     }
   };
 
@@ -141,14 +117,9 @@ const AdminCatalog = () => {
       'Are you sure you want to delete this product?',
       async () => {
         try {
-          const response = await fetch(`/api/products/${dataId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (response.ok) {
-            fetchProducts();
-            showToast('Product removed from catalog.', 'success');
-          }
+          await axios.delete(`/api/products/${dataId}`);
+          fetchProducts();
+          showToast('Product removed from catalog.', 'success');
         } catch (err) {
           console.error(err);
           showToast('Failed to delete product.', 'error');

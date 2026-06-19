@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
+import axiosInstance from '../utils/axiosInstance';
 
 const Home = () => {
   const [collections, setCollections] = useState([]);
@@ -8,8 +9,8 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
+        const response = await axiosInstance.get('/api/products');
+        const data = response.data;
         const formatted = data.map(p => ({
           id: p.product_id || p._id,
           title: p.name,

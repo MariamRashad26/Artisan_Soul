@@ -89,7 +89,7 @@ export const createOrder = async (req, res) => {
 
     const createdOrder = await order.save();
 
-    // Send confirmation email if user is logged in and has email
+    // Send confirmation email — fire-and-forget (never blocks response)
     if (req.user && req.user.email) {
       const deliveryRange = getDeliveryDateRange();
       const html = `
@@ -107,11 +107,9 @@ export const createOrder = async (req, res) => {
           <p style="color:#a8a29e; font-size:0.8rem; margin-top:24px;">Thank you for your commission — Artisan Soul Atelier</p>
         </div>
       `;
-      try {
-        await sendEmail(req.user.email, `Order Confirmed — ${createdOrder.orderId}`, html);
-      } catch (emailErr) {
-        console.error('Order confirmation email failed:', emailErr.message);
-      }
+      // Non-blocking — errors are only logged, never bubble up to the user
+      sendEmail(req.user.email, `Order Confirmed — ${createdOrder.orderId}`, html)
+        .catch(emailErr => console.error('[Order] Confirmation email failed:', emailErr.message));
     }
 
     // ── Create Notifications ──────────────────────────────────────

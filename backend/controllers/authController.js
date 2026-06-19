@@ -26,52 +26,30 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const requiresVerification = process.env.EMAIL_VERIFICATION_REQUIRED === 'true';
-    let verifyToken = undefined;
-    let verifyTokenExpiry = undefined;
-
-    if (requiresVerification) {
-      verifyToken = crypto.randomBytes(32).toString('hex');
-      verifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    }
-
+    // Force verified = true by default
     const user = await User.create({
       name,
       email,
       password,
       role: 'user',
-      isVerified: !requiresVerification,
-      verifyToken,
-      verifyTokenExpiry,
+      isVerified: true,
     });
 
     if (user) {
-      if (requiresVerification) {
-        const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verifyToken}`;
-        const html = `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #fafaf9;">
-            <h2 style="color: #1c1917; font-size: 1.5rem; margin-bottom: 8px;">Verify Your Account — Artisan Soul</h2>
-            <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">Thank you for registering at Artisan Soul. Click the button below to verify your email address and activate your account.</p>
-            <a href="${verifyUrl}" style="display: inline-block; margin: 24px 0; padding: 14px 32px; background: #1c1917; color: white; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">Verify My Account</a>
-            <p style="color: #a8a29e; font-size: 0.8rem;">If you did not create this account, please ignore this email.</p>
-          </div>
-        `;
+      // Send welcome email - fire-and-forget, non-blocking
+      const welcomeUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
+      const html = `
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #fafaf9;">
+          <h2 style="color: #1c1917; font-size: 1.5rem; margin-bottom: 8px;">Welcome to Artisan Soul</h2>
+          <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">Dear ${user.name},</p>
+          <p style="color: #57534e; font-size: 0.95rem; line-height: 1.6;">Thank you for registering at Artisan Soul. Your account is active, and you can now log in to commission custom designs and track your orders.</p>
+          <a href="${welcomeUrl}" style="display: inline-block; margin: 24px 0; padding: 14px 32px; background: #1c1917; color: white; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">Log In to My Account</a>
+          <p style="color: #a8a29e; font-size: 0.8rem;">If you did not create this account, please ignore this email.</p>
+        </div>
+      `;
 
-        let emailSent = false;
-        try {
-          await sendEmail(email, 'Verify your Artisan Soul account', html);
-          emailSent = true;
-        } catch (emailErr) {
-          console.error(`[Register] Verification email failed to send: ${emailErr.message}`);
-        }
-
-        return res.status(201).json({
-          message: 'Registration successful! Please verify your email to log in.',
-          requiresVerification: true,
-          emailSent,
-          devVerifyUrl: verifyUrl, // Expose for easy testing/dev flow bypass if SMTP fails
-        });
-      }
+      sendEmail(email, 'Welcome to Artisan Soul', html)
+        .catch(emailErr => console.error(`[Register] Welcome email failed: ${emailErr.message}`));
 
       // Return token immediately for auto-login
       res.status(201).json({
@@ -108,9 +86,11 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // Auto-verify if user is not verified yet
     if (!user.isVerified) {
-      console.log(`[Auth][login] User not verified: ${email}`);
-      return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox for the verification link.' });
+      user.isVerified = true;
+      await user.save();
+      console.log(`[Auth][login] User auto-verified on login: ${email}`);
     }
 
     const isMatch = await user.matchPassword(password);
@@ -187,18 +167,15 @@ export const forgotPassword = async (req, res) => {
       </div>
     `;
 
-    try {
-      await sendEmail(email, 'Reset your Artisan Soul password', html);
-      console.log(`[ForgotPassword] ✅ Reset email sent to ${email}`);
-      res.json({ message: 'If that email is registered, a reset link has been sent.' });
-    } catch (emailErr) {
-      console.error(`[ForgotPassword] ❌ Email failed: ${emailErr.message}`);
-      console.log(`[ForgotPassword] FALLBACK reset URL: ${resetUrl}`);
-      res.json({
-        message: 'If that email is registered, a reset link has been sent.',
-        devResetUrl: resetUrl // Expose fallback URL during development if SMTP fails
-      });
-    }
+    // Fire-and-forget — respond immediately, never block on SMTP
+    sendEmail(email, 'Reset your Artisan Soul password', html)
+      .then(() => console.log(`[ForgotPassword] ✅ Reset email sent to ${email}`))
+      .catch(emailErr => console.error(`[ForgotPassword] ❌ Email failed: ${emailErr.message}`));
+
+    res.json({
+      message: 'If that email is registered, a reset link has been sent.',
+      devResetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -228,6 +205,7 @@ export const resetPassword = async (req, res) => {
     user.password = password; // pre-save hook will hash it
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
+    user.isVerified = true; // Auto-verify on password reset
     await user.save();
 
     res.json({ message: 'Password reset successfully. You can now log in.' });
@@ -441,18 +419,15 @@ export const resendVerificationEmail = async (req, res) => {
       </div>
     `;
 
-    try {
-      await sendEmail(email, 'Verify your Artisan Soul account', html);
-      console.log(`[Resend] ✅ Verification email sent to ${email}`);
-      res.json({ message: okMessage });
-    } catch (emailErr) {
-      console.error(`[Resend] ❌ Email failed: ${emailErr.message}`);
-      console.log(`[Resend] FALLBACK — Verify this account manually: ${verifyUrl}`);
-      res.json({
-        message: okMessage,
-        devVerifyUrl: verifyUrl // Expose fallback URL during development if SMTP fails
-      });
-    }
+    // Fire-and-forget — respond immediately, never block on SMTP
+    sendEmail(email, 'Verify your Artisan Soul account', html)
+      .then(() => console.log(`[Resend] ✅ Verification email sent to ${email}`))
+      .catch(emailErr => console.error(`[Resend] ❌ Email failed: ${emailErr.message}`));
+
+    res.json({
+      message: okMessage,
+      devVerifyUrl: process.env.NODE_ENV !== 'production' ? verifyUrl : undefined
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

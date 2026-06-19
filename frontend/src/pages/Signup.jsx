@@ -8,7 +8,6 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,19 +20,16 @@ const Signup = () => {
     setSuccessMsg('');
     setIsSubmitting(true);
 
-    const result = await register(name, email, password, role);
+    const result = await register(name, email, password, 'user');
 
     if (result.success) {
       if (result.requiresVerification) {
-        // ✅ FIX: Email verification required - message dikhao, redirect mat karo
         setSuccessMsg('Account created! Please check your email and click the verification link before logging in.');
         setIsSubmitting(false);
         return;
       }
-      // Auto-login hua - role ke hisaab se navigate karo
-      if (role === 'admin') navigate('/admin');
-      else if (role === 'artisan') navigate('/artisan');
-      else navigate('/user/tracker');
+      // Auto-logged in, navigate to user tracker
+      navigate('/user/tracker');
     } else {
       setError(result.message || 'Registration failed');
     }
@@ -140,19 +136,6 @@ const Signup = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-              </div>
-
-              <div className="d-flex flex-column gap-2">
-                <label className="text-sm font-bold text-dark ps-1">Account Type</label>
-                <select
-                  className="form-select px-4 py-4 bg-white border border-primary-20 rounded-xl outline-none transition-all text-dark"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                >
-                  <option value="user">Customer</option>
-                  <option value="artisan">Artisan</option>
-                  <option value="admin">Administrator</option>
-                </select>
               </div>
 
               <button

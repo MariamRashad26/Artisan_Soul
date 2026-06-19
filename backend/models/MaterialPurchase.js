@@ -6,7 +6,7 @@ const materialPurchaseSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   total_cost: { type: Number, required: true },
   purchase_date: { type: Date, required: true, default: Date.now },
-  status: { type: String, enum: ['Pending', 'Completed', 'Cancelled'], default: 'Pending' }
+  status: { type: String, enum: ['Pending', 'Completed', 'Cancelled', 'Ordered', 'Received'], default: 'Pending' }
 }, {
   timestamps: true,
   collection: 'material_purchases'

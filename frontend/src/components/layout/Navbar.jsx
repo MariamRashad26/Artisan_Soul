@@ -17,6 +17,11 @@ const Navbar = () => {
         }
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     return (
         <header className="sticky-top top-0 z-50 w-100 border-bottom border-light-subtle glass-panel px-3 px-md-5 px-lg-5 py-3">
             <nav className="d-flex align-items-center justify-content-between max-w-[1280px] mx-auto position-relative">
@@ -55,7 +60,7 @@ const Navbar = () => {
                            <div className="size-8 bg-primary/10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold text-xs uppercase" title={user.name}>
                                {user.name?.charAt(0) || 'U'}
                            </div>
-                           <button onClick={logout} className="border-0 bg-transparent text-secondary hover:text-dark transition fs-6 fw-medium p-0 d-flex align-items-center">
+                           <button onClick={handleLogout} className="border-0 bg-transparent text-secondary hover:text-dark transition fs-6 fw-medium p-0 d-flex align-items-center">
                                <span className="material-symbols-outlined fs-5">logout</span>
                            </button>
                         </div>
@@ -96,7 +101,7 @@ const Navbar = () => {
                             </Link>
                             
                             {user ? (
-                                <button onClick={() => { setIsMenuOpen(false); logout(); }} className="text-danger fs-4 fw-bold text-decoration-none border-0 bg-transparent text-start pb-4 pt-4 d-flex justify-content-between align-items-center transition w-100">
+                                <button onClick={() => { setIsMenuOpen(false); handleLogout(); }} className="text-danger fs-4 fw-bold text-decoration-none border-0 bg-transparent text-start pb-4 pt-4 d-flex justify-content-between align-items-center transition w-100">
                                     Sign Out <span className="material-symbols-outlined text-danger fs-3">logout</span>
                                 </button>
                             ) : (

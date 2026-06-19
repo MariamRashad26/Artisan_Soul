@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import axios from '../../utils/axiosInstance';
 
 const AdminSuppliers = () => {
   const [suppliers, setSuppliers] = useState([]);
-  const { token } = useAuth();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
@@ -13,30 +12,17 @@ const AdminSuppliers = () => {
 
   const fetchSuppliers = useCallback(async () => {
     try {
-      const response = await fetch('/api/suppliers', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSuppliers(Array.isArray(data) ? data : []);
-      } else {
-        console.error('Fetch suppliers error message:', data.message);
-        setSuppliers([]);
-      }
+      const response = await axios.get('/api/suppliers');
+      setSuppliers(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Fetch suppliers error:', err);
       setSuppliers([]);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
-    if (token) {
-      const loadSuppliers = async () => { await fetchSuppliers(); };
-      loadSuppliers();
-    }
-  }, [token, fetchSuppliers]);
+    fetchSuppliers();
+  }, [fetchSuppliers]);
 
   const filteredSuppliers = Array.isArray(suppliers) ? suppliers.filter(s => 
     (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -66,24 +52,13 @@ const AdminSuppliers = () => {
     };
 
     try {
-      const response = await fetch('/api/suppliers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
-        setIsDeployModalOpen(false);
-        fetchSuppliers(); 
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to add supplier: ${errorData.message}`);
-      }
+      await axios.post('/api/suppliers', payload);
+      setIsDeployModalOpen(false);
+      fetchSuppliers(); 
     } catch (err) {
       console.error(err);
-      alert('Network error while deploying.');
+      const errMsg = err.response?.data?.message || 'Network error while deploying.';
+      alert(`Failed to add supplier: ${errMsg}`);
     }
   };
 
@@ -105,39 +80,21 @@ const AdminSuppliers = () => {
     };
 
     try {
-      const response = await fetch(`/api/suppliers/${editingSupplier._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
-        setIsEditModalOpen(false);
-        fetchSuppliers();
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to update: ${errorData.message}`);
-      }
+      await axios.put(`/api/suppliers/${editingSupplier._id}`, payload);
+      setIsEditModalOpen(false);
+      fetchSuppliers();
     } catch (err) {
       console.error(err);
-      alert('Network error while updating.');
+      const errMsg = err.response?.data?.message || 'Network error while updating.';
+      alert(`Failed to update: ${errMsg}`);
     }
   };
 
   const handleDelete = async (dataId) => {
     if (!window.confirm('Remove this supplier from the registry?')) return;
     try {
-      const response = await fetch(`/api/suppliers/${dataId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        fetchSuppliers();
-      }
+      await axios.delete(`/api/suppliers/${dataId}`);
+      fetchSuppliers();
     } catch (err) {
       console.error(err);
     }

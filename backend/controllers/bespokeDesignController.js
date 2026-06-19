@@ -2,7 +2,8 @@ import BespokeDesign from '../models/BespokeDesign.js';
 
 export const getDesigns = async (req, res) => {
   try {
-    const designs = await BespokeDesign.find({ user: req.user._id });
+    const filter = req.user.role === 'admin' ? {} : { user: req.user._id };
+    const designs = await BespokeDesign.find(filter).populate('user', 'name email');
     res.json(designs);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -25,8 +26,8 @@ export const deleteDesign = async (req, res) => {
     if (!design) {
       return res.status(404).json({ message: 'Design not found' });
     }
-    // Verify ownership
-    if (design.user && design.user.toString() !== req.user._id.toString()) {
+    // Verify ownership or admin bypass
+    if (req.user.role !== 'admin' && design.user && design.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to delete this design' });
     }
     await BespokeDesign.deleteOne({ _id: design._id });
@@ -40,6 +41,11 @@ export const updateDesign = async (req, res) => {
   try {
     const design = await BespokeDesign.findById(req.params.id);
     if (design) {
+      // Verify ownership or admin bypass
+      if (req.user.role !== 'admin' && design.user && design.user.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Not authorized to update this design' });
+      }
+
       design.name = req.body.name || design.name;
       design.price = req.body.price !== undefined ? req.body.price : design.price;
       design.material = req.body.material || design.material;

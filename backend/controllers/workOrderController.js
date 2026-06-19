@@ -75,11 +75,12 @@ export const deleteWorkOrder = async (req, res) => {
 // @route   POST /api/work-orders/consumption
 // @access  Private
 export const logConsumption = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { batch_id, raw_material_id, quantity_used, logged_by } = req.body;
 
+  let session = null;
   try {
-    const { batch_id, raw_material_id, quantity_used, logged_by } = req.body;
+    session = await mongoose.startSession();
+    session.startTransaction();
 
     // Check material stock
     const material = await RawMaterial.findById(raw_material_id).session(session);
@@ -97,11 +98,46 @@ export const logConsumption = async (req, res) => {
     }], { session });
 
     await session.commitTransaction();
+    session.endSession();
     res.status(201).json(log[0]);
   } catch (error) {
-    await session.abortTransaction();
+    if (session) {
+      try { await session.abortTransaction(); } catch (e) {}
+      session.endSession();
+    }
+
+    // Pass insufficient stock directly — not a transaction error
+    if (error.message === 'Insufficient material stock') {
+      return res.status(400).json({ message: error.message });
+    }
+
+    const isTransactionUnsupported =
+      error.message?.includes('replica set') ||
+      error.message?.includes('Transaction') ||
+      error.message?.includes('transaction') ||
+      error.code === 20;
+
+    if (isTransactionUnsupported) {
+      console.warn('[WorkOrder] MongoDB standalone detected — using non-transactional fallback.');
+      try {
+        const material = await RawMaterial.findById(raw_material_id);
+        if (!material || material.stock_quantity < quantity_used) {
+          return res.status(400).json({ message: 'Insufficient material stock' });
+        }
+
+        material.stock_quantity -= quantity_used;
+        await material.save();
+
+        const log = await MaterialConsumptionLog.create({
+          batch_id, raw_material_id, quantity_used, logged_by
+        });
+
+        return res.status(201).json(log);
+      } catch (fallbackError) {
+        return res.status(500).json({ message: fallbackError.message });
+      }
+    }
+
     res.status(500).json({ message: error.message });
-  } finally {
-    session.endSession();
   }
 };
