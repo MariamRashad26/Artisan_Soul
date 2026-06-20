@@ -88,6 +88,126 @@ const CustomDesigner = () => {
     }
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Build':
+        return (
+          <section className="animate-in fade-in slide-in-from-right-4 duration-500">
+            <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Base Architecture</h3>
+            <div className="row g-3">
+              {['Oxford', 'Derby', 'Monk', 'Chelsea'].map((type, i) => (
+                <div key={i} className="col-6">
+                  <button 
+                    onClick={() => { setBaseArch(type); setCurrentImage(archImages[type] || paramImage); }}
+                    className={`w-100 p-4 rounded-2xl border transition-all ${baseArch === type ? 'bg-primary-5 border-primary shadow-premium' : 'bg-white border-gray-100 opacity-40 hover:opacity-100 text-secondary'}`}
+                  >
+                    <span className="material-symbols-outlined fs-3 mb-3 d-block">architecture</span>
+                    <span className="text-xs fw-black text-uppercase tracking-widest">{type}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      case 'Materials':
+        return (
+          <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-10">
+            <div>
+              <div className="d-flex justify-content-between align-items-center mb-6">
+                <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-0">Leather Finish</h3>
+                <span className="text-[10px] text-secondary opacity-40 fw-black uppercase">Grade A++</span>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { name: 'Vachetta Calfskin', priceLabel: 'Included', price: 0, color: '#4A3728' },
+                  { name: 'French Pebble Grain', priceLabel: '+PKR 80', price: 80, color: '#1A1A1A' },
+                  { name: 'Horween Shell Cordovan', priceLabel: '+PKR 320', price: 320, color: '#3D0C02' }
+                ].map((item, i) => (
+                  <button 
+                     key={i} 
+                     onClick={() => setLeather({ name: item.name, price: item.price })}
+                     className={`w-100 p-4 rounded-2xl border d-flex align-items-center gap-4 transition-all ${leather.name === item.name ? 'bg-white border-gray-200 shadow-premium' : 'bg-gray-50/50 border-transparent opacity-40 hover:opacity-100'}`}
+                  >
+                    <div className="size-10 rounded-full shadow-inner border border-white" style={{ background: item.color }}></div>
+                    <div className="text-start">
+                      <p className="text-xs fw-black text-dark text-uppercase tracking-widest mb-0">{item.name}</p>
+                      <p className="text-[10px] text-primary fw-bold mb-0">{item.priceLabel}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Accent Details */}
+            <div>
+              <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Lining & Finishes</h3>
+              <div className="d-flex gap-4">
+                {['#D2B48C', '#E5E5E5', '#2C3E50'].map((color, i) => (
+                  <button 
+                    key={i} 
+                    onClick={() => setLining(color)}
+                    className={`size-12 rounded-full shadow-premium border-2 transition-all ${lining === color ? 'border-primary ring-4 ring-primary/10 scale-110' : 'border-white hover:scale-105 opacity-40 hover:opacity-100'}`} 
+                    style={{ backgroundColor: color }}
+                  ></button>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      case 'Sole':
+        return (
+          <section className="animate-in fade-in slide-in-from-right-4 duration-500">
+            <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Sole Anatomy</h3>
+            <div className="space-y-4">
+              {[
+                { name: 'Double Leather Welt', detail: 'Traditional elegance', priceLabel: 'Included', price: 0 },
+                { name: 'Vibram Commando', detail: 'All-weather traction', priceLabel: '+PKR 45', price: 45 },
+                { name: 'Crepe Rubber', detail: 'Casual comfort', priceLabel: '+PKR 35', price: 35 }
+              ].map((item, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => setSole({ name: item.name, price: item.price })}
+                  className={`w-100 p-4 rounded-2xl border d-flex justify-content-between align-items-center transition-all ${sole.name === item.name ? 'bg-primary-5 border-primary shadow-sm' : 'bg-white border-gray-100 opacity-60 hover:opacity-100 text-secondary'}`}
+                >
+                   <div className="text-start">
+                     <p className="text-xs fw-black text-dark text-uppercase tracking-widest mb-1">{item.name}</p>
+                     <p className="text-[10px] text-secondary opacity-60 fw-bold mb-0">{item.detail}</p>
+                   </div>
+                   <p className="text-[10px] text-primary fw-bold mb-0">{item.priceLabel}</p>
+                </button>
+              ))}
+            </div>
+          </section>
+        );
+      case 'Details':
+        return (
+          <section className="animate-in fade-in slide-in-from-right-4 duration-500">
+            <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Personal Touches</h3>
+            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6">
+              <label className="text-[10px] text-secondary opacity-60 fw-black text-uppercase tracking-widest mb-2 d-block">Monogram Embossing (+PKR 25)</label>
+              <input type="text" maxLength="3" value={monogram} onChange={(e) => setMonogram(e.target.value)} placeholder="J.A" className="w-100 bg-white border border-gray-200 rounded-xl p-3 fw-black text-dark text-center tracking-[0.3em] uppercase focus:border-primary focus:outline-none transition" />
+            </div>
+            
+            <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6 mt-8">Hardware Finish</h3>
+            <div className="row g-3">
+              {['Antique Brass', 'Gunmetal', 'Polished Silver'].map((hw, i) => (
+                <div key={i} className="col-12">
+                  <button 
+                    onClick={() => setHardware(hw)}
+                    className={`w-100 p-3 rounded-2xl border transition-all text-xs fw-black uppercase tracking-widest ${hardware === hw ? 'bg-dark text-white border-dark shadow-lg' : 'bg-white text-secondary opacity-60 hover:opacity-100 border-gray-100'}`}
+                  >
+                    {hw}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-vh-100 bg-white font-display text-dark animate-in fade-in duration-700 position-relative overflow-hidden">
       {/* Cinematic Top Navigation */}
@@ -125,165 +245,51 @@ const CustomDesigner = () => {
         </div>
       </header>
 
-      <main className="d-flex h-[calc(100vh-84px)] overflow-hidden">
-        <aside className="w-[400px] bg-white border-end border-gray-100 overflow-y-auto no-scrollbar pt-8 px-8 pb-32">
+      <main className="d-flex flex-column flex-lg-row h-[calc(100vh-76px)] lg:h-[calc(100vh-84px)] overflow-hidden position-relative pb-24 lg:pb-0">
+        {/* Left Sidebar (Desktop Only) */}
+        <aside className="d-none lg:block w-[400px] bg-white border-end border-gray-100 overflow-y-auto no-scrollbar pt-8 px-8 pb-32 flex-shrink-0">
           <div className="mb-12">
             <h1 className="fs-2 fw-black font-serif tracking-tight mb-2">{paramBaseModel}</h1>
             <p className="text-secondary opacity-60 font-display fs-6">Crafted with precision in our Sialkot atelier.</p>
           </div>
-
-          <div className="space-y-12">
-            
-            {activeTab === 'Build' && (
-              <section className="animate-in fade-in slide-in-from-right-4 duration-500">
-                <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Base Architecture</h3>
-                <div className="row g-3">
-                  {['Oxford', 'Derby', 'Monk', 'Chelsea'].map((type, i) => (
-                    <div key={i} className="col-6">
-                      <button 
-                        onClick={() => { setBaseArch(type); setCurrentImage(archImages[type] || paramImage); }}
-                        className={`w-100 p-4 rounded-2xl border transition-all ${baseArch === type ? 'bg-primary-5 border-primary shadow-premium' : 'bg-white border-gray-100 opacity-40 hover:opacity-100 text-secondary'}`}
-                      >
-                        <span className="material-symbols-outlined fs-3 mb-3 d-block">architecture</span>
-                        <span className="text-xs fw-black text-uppercase tracking-widest">{type}</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'Materials' && (
-              <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-10">
-                <div>
-                  <div className="d-flex justify-content-between align-items-center mb-6">
-                    <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-0">Leather Finish</h3>
-                    <span className="text-[10px] text-secondary opacity-40 fw-black uppercase">Grade A++</span>
-                  </div>
-                  <div className="space-y-4">
-                    {[
-                      { name: 'Vachetta Calfskin', priceLabel: 'Included', price: 0, color: '#4A3728' },
-                      { name: 'French Pebble Grain', priceLabel: '+PKR 80', price: 80, color: '#1A1A1A' },
-                      { name: 'Horween Shell Cordovan', priceLabel: '+PKR 320', price: 320, color: '#3D0C02' }
-                    ].map((item, i) => (
-                      <button 
-                         key={i} 
-                         onClick={() => setLeather({ name: item.name, price: item.price })}
-                         className={`w-100 p-4 rounded-2xl border d-flex align-items-center gap-4 transition-all ${leather.name === item.name ? 'bg-white border-gray-200 shadow-premium' : 'bg-gray-50/50 border-transparent opacity-40 hover:opacity-100'}`}
-                      >
-                        <div className="size-10 rounded-full shadow-inner border border-white" style={{ background: item.color }}></div>
-                        <div className="text-start">
-                          <p className="text-xs fw-black text-dark text-uppercase tracking-widest mb-0">{item.name}</p>
-                          <p className="text-[10px] text-primary fw-bold mb-0">{item.priceLabel}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Accent Details */}
-                <div>
-                  <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Lining & Finishes</h3>
-                  <div className="d-flex gap-4">
-                    {['#D2B48C', '#E5E5E5', '#2C3E50'].map((color, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => setLining(color)}
-                        className={`size-12 rounded-full shadow-premium border-2 transition-all ${lining === color ? 'border-primary ring-4 ring-primary/10 scale-110' : 'border-white hover:scale-105 opacity-40 hover:opacity-100'}`} 
-                        style={{ backgroundColor: color }}
-                      ></button>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'Sole' && (
-              <section className="animate-in fade-in slide-in-from-right-4 duration-500">
-                <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Sole Anatomy</h3>
-                <div className="space-y-4">
-                  {[
-                    { name: 'Double Leather Welt', detail: 'Traditional elegance', priceLabel: 'Included', price: 0 },
-                    { name: 'Vibram Commando', detail: 'All-weather traction', priceLabel: '+PKR 45', price: 45 },
-                    { name: 'Crepe Rubber', detail: 'Casual comfort', priceLabel: '+PKR 35', price: 35 }
-                  ].map((item, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => setSole({ name: item.name, price: item.price })}
-                      className={`w-100 p-4 rounded-2xl border d-flex justify-content-between align-items-center transition-all ${sole.name === item.name ? 'bg-primary-5 border-primary shadow-sm' : 'bg-white border-gray-100 opacity-60 hover:opacity-100 text-secondary'}`}
-                    >
-                       <div className="text-start">
-                         <p className="text-xs fw-black text-dark text-uppercase tracking-widest mb-1">{item.name}</p>
-                         <p className="text-[10px] text-secondary opacity-60 fw-bold mb-0">{item.detail}</p>
-                       </div>
-                       <p className="text-[10px] text-primary fw-bold mb-0">{item.priceLabel}</p>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'Details' && (
-              <section className="animate-in fade-in slide-in-from-right-4 duration-500">
-                <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6">Personal Touches</h3>
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6">
-                  <label className="text-[10px] text-secondary opacity-60 fw-black text-uppercase tracking-widest mb-2 d-block">Monogram Embossing (+PKR 25)</label>
-                  <input type="text" maxLength="3" value={monogram} onChange={(e) => setMonogram(e.target.value)} placeholder="J.A" className="w-100 bg-white border border-gray-200 rounded-xl p-3 fw-black text-dark text-center tracking-[0.3em] uppercase focus:border-primary focus:outline-none transition" />
-                </div>
-                
-                <h3 className="text-xs fw-black text-primary text-uppercase tracking-[0.2em] mb-6 mt-8">Hardware Finish</h3>
-                <div className="row g-3">
-                  {['Antique Brass', 'Gunmetal', 'Polished Silver'].map((hw, i) => (
-                    <div key={i} className="col-12">
-                      <button 
-                        onClick={() => setHardware(hw)}
-                        className={`w-100 p-3 rounded-2xl border transition-all text-xs fw-black uppercase tracking-widest ${hardware === hw ? 'bg-dark text-white border-dark shadow-lg' : 'bg-white text-secondary opacity-60 hover:opacity-100 border-gray-100'}`}
-                      >
-                        {hw}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
+          {renderTabContent()}
         </aside>
 
         {/* Center: Cinematic Canvas */}
-        <section className="flex-grow-1 bg-gray-50 position-relative d-flex align-items-center justify-content-center overflow-hidden">
+        <section className="flex-grow-1 bg-gray-50 position-relative d-flex align-items-center justify-content-center overflow-hidden w-100 h-[45vh] lg:h-100">
           <div className="position-absolute top-0 start-0 w-100 h-100 bg-white opacity-50" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(200, 160, 110, 0.1) 0%, transparent 70%)' }}></div>
           
-          <div className="position-absolute bottom-12 start-1/2 translate-middle-x z-10 glass-panel p-2 rounded-full border-gray-100 shadow-2xl d-flex gap-2">
+          <div className="position-absolute bottom-6 lg:bottom-12 start-1/2 translate-middle-x z-10 glass-panel p-2 rounded-full border-gray-100 shadow-2xl d-flex gap-2">
             {['Side', 'Top', 'Heel', 'Sole'].map((view, i) => (
               <button 
                 key={i} 
                 onClick={() => setViewAngle(view)}
-                className={`px-6 py-2 rounded-pill font-display text-[10px] fw-black uppercase tracking-widest transition-all ${viewAngle === view ? 'bg-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'}`}
+                className={`px-3 py-1.5 lg:px-6 lg:py-2 rounded-pill font-display text-[9px] lg:text-[10px] fw-black uppercase tracking-widest transition-all ${viewAngle === view ? 'bg-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'}`}
               >
-                {view} View
+                {view}<span className="d-none d-sm-inline"> View</span>
               </button>
             ))}
           </div>
 
-          <div className="position-absolute top-12 left-12 z-10 space-y-4 d-flex flex-column gap-3">
+          <div className="position-absolute top-6 lg:top-12 left-6 lg:left-12 z-10 space-y-4 d-flex flex-column gap-3">
             <button 
                onClick={() => { setIsSpinning(true); setTimeout(() => setIsSpinning(false), 1500); }}
-               className="size-12 bg-white rounded-full d-flex align-items-center justify-content-center shadow-premium hover:text-primary transition border-0">
+               className="size-10 lg:size-12 bg-white rounded-full d-flex align-items-center justify-content-center shadow-premium hover:text-primary transition border-0">
               <span className={`material-symbols-outlined fs-5 ${isSpinning ? 'text-primary' : ''}`}>3d_rotation</span>
             </button>
             <button 
                onClick={() => setZoom(!zoom)}
-               className={`size-12 rounded-full d-flex align-items-center justify-content-center shadow-premium transition border-0 ${zoom ? 'bg-primary text-white' : 'bg-white hover:text-primary'}`}>
+               className={`size-10 lg:size-12 rounded-full d-flex align-items-center justify-content-center shadow-premium transition border-0 ${zoom ? 'bg-primary text-white' : 'bg-white hover:text-primary'}`}>
               <span className="material-symbols-outlined fs-5">{zoom ? 'zoom_out' : 'zoom_in'}</span>
             </button>
           </div>
 
           {/* Immersive Product Mock */}
-          <div className="position-relative w-100 max-w-4xl px-20">
-            <div className="position-absolute top-1/2 left-1/2 translate-middle size-[500px] bg-primary rounded-full blur-[160px] opacity-10"></div>
+          <div className="position-relative w-100 max-w-4xl px-4 lg:px-20">
+            <div className="position-absolute top-1/2 left-1/2 translate-middle size-[250px] lg:size-[500px] bg-primary rounded-full blur-[100px] lg:blur-[160px] opacity-10"></div>
             <img 
               src={currentImage} 
-              className={`w-100 h-[500px] lg:h-[600px] object-contain drop-shadow-[0_50px_80px_rgba(0,0,0,0.3)] ${isSpinning ? '' : 'animate-float'}`}
+              className={`w-100 h-[250px] md:h-[400px] lg:h-[600px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] lg:drop-shadow-[0_50px_80px_rgba(0,0,0,0.3)] ${isSpinning ? '' : 'animate-float'}`}
               alt="Bespoke Shoe Preview"
               style={{ 
                 transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -299,8 +305,54 @@ const CustomDesigner = () => {
           </div>
         </section>
 
-        {/* Right: Summary & Order */}
-        <aside className="w-[360px] bg-white border-start border-gray-100 p-10 d-flex flex-column justify-content-between overflow-y-auto no-scrollbar">
+        {/* Bottom Options Drawer (Mobile Only) */}
+        <div className="d-block lg:d-none bg-white border-top border-gray-100 h-[55vh] overflow-y-auto no-scrollbar pb-32">
+          <div className="d-flex px-4 py-2 bg-gray-50 border-bottom border-gray-100 sticky-top top-0 z-10 overflow-x-auto no-scrollbar gap-2">
+            {['Build', 'Materials', 'Sole', 'Details', 'Review'].map(tab => (
+              <button 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-pill font-display text-[10px] fw-black uppercase tracking-widest transition-all whitespace-nowrap border-0 ${activeTab === tab ? 'bg-dark text-white shadow-sm' : 'bg-transparent text-secondary opacity-60 hover:opacity-100'}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+          <div className="p-6">
+            {activeTab === 'Review' ? (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <div>
+                  <h2 className="fs-5 fw-black font-serif mb-6 tracking-tight">Technical Review</h2>
+                  <div className="space-y-4">
+                    {[
+                      { label: 'Base Wood', value: `Heritage ${baseArch}` },
+                      { label: 'Primary Skin', value: leather.name },
+                      { label: 'Hardware', value: hardware },
+                      { label: 'Sole Unit', value: sole.name }
+                    ].map((spec, i) => (
+                      <div key={i} className="d-flex justify-content-between align-items-center pb-3 border-bottom border-gray-50">
+                        <span className="text-xs fw-medium text-secondary opacity-40 uppercase tracking-widest">{spec.label}</span>
+                        <span className="text-xs fw-black text-dark uppercase tracking-widest">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="p-8 rounded-2xl bg-dark text-white shadow-2xl position-relative overflow-hidden">
+                  <div className="position-absolute top-[-20%] right-[-10%] size-32 bg-primary rounded-full blur-[60px] opacity-20"></div>
+                  <p className="text-[10px] fw-black text-primary text-uppercase tracking-[0.2em] mb-2">Total Commission</p>
+                  <div className="display-6 fw-black font-serif mb-0">PKR {totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                  <p className="text-[10px] text-white/40 fw-medium mt-2">Includes archival lasts & bespoke fit-check.</p>
+                </div>
+              </div>
+            ) : (
+              renderTabContent()
+            )}
+          </div>
+        </div>
+
+        {/* Right Sidebar (Desktop Only) */}
+        <aside className="d-none lg:flex w-[360px] bg-white border-start border-gray-100 p-10 flex-column justify-content-between overflow-y-auto no-scrollbar flex-shrink-0">
           <div className="space-y-12">
             <div>
               <h2 className="fs-5 fw-black font-serif mb-6 tracking-tight">Technical Review</h2>
@@ -322,7 +374,7 @@ const CustomDesigner = () => {
             <div className="p-8 rounded-2xl bg-dark text-white shadow-2xl position-relative overflow-hidden group">
               <div className="position-absolute top-[-20%] right-[-10%] size-32 bg-primary rounded-full blur-[60px] opacity-20"></div>
               <p className="text-[10px] fw-black text-primary text-uppercase tracking-[0.2em] mb-2">Total Commission</p>
-              <div className="display-4 fw-black font-serif mb-0">${totalPrice.toFixed(2)}</div>
+              <div className="display-4 fw-black font-serif mb-0">PKR {totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
               <p className="text-[10px] text-white/40 fw-medium mt-2">Includes archival lasts & bespoke fit-check.</p>
             </div>
           </div>
@@ -333,6 +385,22 @@ const CustomDesigner = () => {
             <p className="text-[10px] text-center text-secondary opacity-40 font-display px-6">Every Artisan Soul piece is meticulously handcrafted by master cordwainers with over 20 years of experience.</p>
           </div>
         </aside>
+
+        {/* Mobile Sticky Bottom Action Bar */}
+        <div className="d-flex lg:d-none align-items-center justify-content-between px-6 py-4 bg-white border-top border-gray-100 fixed-bottom z-30 shadow-lg">
+          <div>
+            <p className="text-[10px] fw-black text-secondary opacity-40 text-uppercase tracking-widest mb-0">Current Estimate</p>
+            <p className="fs-5 fw-black text-dark font-serif mb-0">PKR {totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="d-flex gap-2">
+            <button onClick={handleSaveToLibrary} className="size-11 rounded-full bg-gray-50 border border-gray-200 text-dark d-flex align-items-center justify-content-center hover:bg-dark hover:text-white transition-all">
+              <span className="material-symbols-outlined fs-5">save</span>
+            </button>
+            <button onClick={handleAddToCollection} className="px-5 py-3 bg-primary text-white rounded-pill fw-black text-xs uppercase tracking-widest shadow-lg hover:bg-dark transition-all border-0">
+              Add to Collection
+            </button>
+          </div>
+        </div>
       </main>
     </div>
   );
