@@ -146,7 +146,7 @@ const AdminOrders = () => {
           <h1 className="display-4 fw-black font-serif text-dark tracking-tighter mb-0 lowercase">Order.Registry</h1>
         </div>
         
-        <div className="d-flex gap-4">
+        <div className="d-flex gap-3 flex-wrap">
           <button onClick={handleExport} className="px-8 py-3.5 rounded-2xl bg-white border border-stone-100 text-[10px] fw-black text-uppercase tracking-widest text-dark hover:bg-stone-50 transition duration-500 shadow-sm d-flex align-items-center gap-3">
             <span className="material-symbols-outlined fs-5">download</span>
             Export Ledger
@@ -159,8 +159,8 @@ const AdminOrders = () => {
       </section>
 
       {/* Boutique Filter Suite */}
-      <section className="glass-panel p-4 rounded-[2.5rem] border-stone-100 shadow-premium d-flex flex-wrap align-items-center gap-6 mb-10">
-        <div className="d-flex align-items-center gap-6 flex-grow-1">
+      <section className="glass-panel p-4 rounded-[2.5rem] border-stone-100 shadow-premium d-flex flex-column flex-md-row align-items-md-center gap-4 mb-10">
+        <div className="d-flex align-items-center gap-4 flex-grow-1 flex-wrap">
           {filterConfig.map((filter, i) => (
             <div key={i} className="d-flex flex-column gap-2 min-w-[160px]">
               <label className="text-[9px] fw-black text-uppercase tracking-[0.3em] text-stone-700 px-2">{filter.label}</label>

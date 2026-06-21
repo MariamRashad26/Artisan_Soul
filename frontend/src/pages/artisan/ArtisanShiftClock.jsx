@@ -267,13 +267,14 @@ const ArtisanShiftClock = () => {
       <main className="max-w-7xl mx-auto px-6 lg:px-12 py-10 animate-in fade-in slide-in-from-bottom duration-1000">
 
         {/* HOW IT WORKS banner */}
-        <div className="mb-8 p-5 bg-stone-900 rounded-2xl text-white d-flex gap-6 flex-wrap">
+        <div className="mb-8 p-5 bg-stone-900 rounded-2xl text-white">
+          <div className="row g-4">
           {[
             { icon: 'login', step: '1', title: 'Clock In', desc: 'Start your shift when you arrive at the workshop' },
             { icon: 'timer', step: '2', title: 'Track Each Stage', desc: 'Select your assigned order + stage → start timer → stop when done' },
             { icon: 'logout', step: '3', title: 'Clock Out', desc: 'End your shift — total hours are recorded automatically' }
           ].map((s, i) => (
-            <div key={i} className="d-flex align-items-start gap-3 flex-grow-1 min-w-[200px]">
+            <div key={i} className="col-12 col-sm-4 d-flex align-items-start gap-3">
               <div className="size-10 bg-primary rounded-xl d-flex align-items-center justify-content-center text-white flex-shrink-0">
                 <span className="material-symbols-outlined fs-6">{s.icon}</span>
               </div>
@@ -284,6 +285,7 @@ const ArtisanShiftClock = () => {
               </div>
             </div>
           ))}
+          </div>
         </div>
 
         <div className="row g-6 mb-8">

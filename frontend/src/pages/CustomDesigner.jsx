@@ -247,7 +247,7 @@ const CustomDesigner = () => {
 
       <main className="d-flex flex-column flex-lg-row h-[calc(100vh-76px)] lg:h-[calc(100vh-84px)] overflow-hidden position-relative pb-24 lg:pb-0">
         {/* Left Sidebar (Desktop Only) */}
-        <aside className="d-none lg:block w-[400px] bg-white border-end border-gray-100 overflow-y-auto no-scrollbar pt-8 px-8 pb-32 flex-shrink-0">
+        <aside className="d-none d-lg-block bg-white border-end border-gray-100 overflow-y-auto no-scrollbar pt-8 px-8 pb-32 flex-shrink-0" style={{ width: '400px' }}>
           <div className="mb-12">
             <h1 className="fs-2 fw-black font-serif tracking-tight mb-2">{paramBaseModel}</h1>
             <p className="text-secondary opacity-60 font-display fs-6">Crafted with precision in our Sialkot atelier.</p>
@@ -306,7 +306,7 @@ const CustomDesigner = () => {
         </section>
 
         {/* Bottom Options Drawer (Mobile Only) */}
-        <div className="d-block lg:d-none bg-white border-top border-gray-100 h-[55vh] overflow-y-auto no-scrollbar pb-32">
+        <div className="d-block d-lg-none bg-white border-top border-gray-100 h-[55vh] overflow-y-auto no-scrollbar pb-32">
           <div className="d-flex px-4 py-2 bg-gray-50 border-bottom border-gray-100 sticky-top top-0 z-10 overflow-x-auto no-scrollbar gap-2">
             {['Build', 'Materials', 'Sole', 'Details', 'Review'].map(tab => (
               <button 
@@ -352,7 +352,7 @@ const CustomDesigner = () => {
         </div>
 
         {/* Right Sidebar (Desktop Only) */}
-        <aside className="d-none lg:flex w-[360px] bg-white border-start border-gray-100 p-10 flex-column justify-content-between overflow-y-auto no-scrollbar flex-shrink-0">
+        <aside className="d-none d-lg-flex bg-white border-start border-gray-100 p-10 flex-column justify-content-between overflow-y-auto no-scrollbar flex-shrink-0" style={{ width: '360px' }}>
           <div className="space-y-12">
             <div>
               <h2 className="fs-5 fw-black font-serif mb-6 tracking-tight">Technical Review</h2>
@@ -387,7 +387,7 @@ const CustomDesigner = () => {
         </aside>
 
         {/* Mobile Sticky Bottom Action Bar */}
-        <div className="d-flex lg:d-none align-items-center justify-content-between px-6 py-4 bg-white border-top border-gray-100 fixed-bottom z-30 shadow-lg">
+        <div className="d-flex d-lg-none align-items-center justify-content-between px-6 py-4 bg-white border-top border-gray-100 fixed-bottom z-30 shadow-lg">
           <div>
             <p className="text-[10px] fw-black text-secondary opacity-40 text-uppercase tracking-widest mb-0">Current Estimate</p>
             <p className="fs-5 fw-black text-dark font-serif mb-0">PKR {totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>

@@ -41,7 +41,7 @@ const Login = () => {
   return (
     <div className="d-flex min-vh-100 bg-white font-display antialiased">
       {/* Left Side: Atmospheric Image Section */}
-      <div className="d-none d-lg-flex w-50 position-relative overflow-hidden">
+      <div className="d-none d-lg-flex position-relative overflow-hidden" style={{ width: '50%' }}>
         <div className="position-absolute inset-0 z-10 bg-gradient-to-t from-dark/70 via-transparent to-transparent"></div>
         <div 
           className="position-absolute inset-0 bg-cover bg-center" 
@@ -56,7 +56,7 @@ const Login = () => {
       </div>
 
       {/* Right Side: Login Form Section */}
-      <div className="d-flex flex-column w-100 w-lg-50 justify-content-center align-items-center bg-gray-50 px-4 py-5 px-lg-0">
+      <div className="d-flex flex-column flex-grow-1 justify-content-center align-items-center bg-gray-50 px-4 py-5 px-lg-0">
         <div className="w-100" style={{ maxWidth: '440px' }}>
           {/* Branding */}
           <div className="d-flex align-items-center gap-3 mb-5">

@@ -140,15 +140,17 @@ const Home = () => {
             <h2 className="fs-1 fw-bold tracking-tight mb-3">The Journey of a Shoe</h2>
             <p className="text-secondary  max-w-2xl mx-auto">From the initial selection of raw hides to the final polish, our 9-stage manufacturing process is a testament to quality.</p>
           </div>
-          <div className="row row-cols-3 row-cols-md-4 row-cols-lg-9 g-4 justify-content-center">
+          <div className="overflow-x-auto pb-2">
+            <div className="d-flex flex-nowrap flex-lg-wrap justify-content-lg-center gap-4 py-2">
             {['Selection', 'Cutting', 'Skiving', 'Stitching', 'Lasting', 'Welting', 'Bottoming', 'Finishing', 'Polish'].map((step, index) => (
-              <div key={step} className="d-flex flex-column align-items-center text-center gap-3">
+              <div key={step} className="d-flex flex-column align-items-center text-center gap-3 flex-shrink-0">
                 <div className={`h-16 w-16 rounded-circle shadow-sm d-flex align-items-center justify-content-center fw-bold transition duration-300 hover:scale-110 ${index === 8 ? 'bg-primary text-white shadow-lg' : 'bg-white  text-primary border border-light-subtle border-primary/20 hover:bg-primary/10'}`}>
                   {String(index + 1).padStart(2, '0')}
                 </div>
                 <span className="fs-6 text-muted fw-bold text-uppercase tracking-tighter">{step}</span>
               </div>
             ))}
+            </div>
           </div>
           <Link to="/craftsmanship" className="d-block mt-16 aspect-video w-100 max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl position-relative group">
             <div

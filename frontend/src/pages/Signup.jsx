@@ -33,7 +33,7 @@ const Signup = () => {
   return (
     <div className="d-flex min-vh-100 bg-background-light dark:bg-background-dark font-display text-dark antialiased overflow-x-hidden">
       {/* Image Section (Left) */}
-      <div className="d-none d-lg-flex w-50 position-relative">
+      <div className="d-none d-lg-flex position-relative" style={{ width: '50%' }}>
         <div className="position-absolute inset-0 bg-primary opacity-20 mix-blend-multiply z-10"></div>
         <div className="position-absolute inset-0 bg-gradient-to-t from-dark/80 via-transparent to-transparent z-20"></div>
         <div
@@ -51,7 +51,7 @@ const Signup = () => {
       </div>
 
       {/* Form Section (Right) */}
-      <div className="w-100 w-lg-50 d-flex flex-column justify-content-center align-items-center px-4 py-5 px-sm-5 px-lg-24">
+      <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center px-4 py-5 px-sm-5">
         <div className="w-100 max-w-md d-flex flex-column gap-5">
           <div className="d-flex d-lg-none align-items-center gap-2 mb-4">
             <span className="material-symbols-outlined text-primary fs-2">workspace_premium</span>

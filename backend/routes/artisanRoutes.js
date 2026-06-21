@@ -10,7 +10,7 @@ import { admin } from '../middleware/adminMiddleware.js';
 
 const router = express.Router();
 
-// Artisan CRUD — all routes require admin
+
 router.route('/').get(protect, admin, getArtisans);
 router.route('/').post(protect, admin, addArtisan);
 router.route('/:id').put(protect, admin, updateArtisan);

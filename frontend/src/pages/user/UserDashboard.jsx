@@ -106,7 +106,7 @@ const UserDashboard = () => {
       <section className="mb-12">
         <h3 className="font-serif fs-3 mb-6 fw-black text-dark tracking-tight">Active Workshop Session</h3>
         <div className="glass-panel rounded-2xl overflow-hidden d-flex flex-column flex-lg-row border border-gray-100 shadow-premium group">
-          <div className="col-lg-5 position-relative min-h-[400px]">
+          <div className="col-lg-5 position-relative" style={{ minHeight: 'clamp(250px, 40vw, 400px)' }}>
             <div className="position-absolute top-0 bottom-0 start-0 end-0 bg-cover bg-center transition-transform duration-[2000ms] group-hover:scale-110" style={{ backgroundImage: `url('${activeOrder ? activeOrder.img : "https://lh3.googleusercontent.com/aida-public/AB6AXuBAb-QZ9lUfEDUGV4Hu2nSjXJs_a60V_wJ8xFHycdTfo2cUw-v5FT0uHycwttnpxV5Gw8i3gZZN7LBNwg1HCqU4pQFHXiHBdSBK2485yHamBjVntlQswcUwfS-6Y9Y7bThvuF_8bxfdEhQJKRzZWcCmoCTQI_WZ37WWkBsIKsHRRNIFdEsXXRMlDCQPM_uvqAo9UCqEBLgT9SuLEgSUsvYsFQZQQG_r7z8RK0PO7F9SV1E4eoO9PKvWMsL_BCDgz6jLpiBkkSIO1UmE"}')` }}></div>
             <div className="position-absolute top-6 left-6 d-flex gap-2">
               <span className="bg-white/90 backdrop-blur-md text-dark text-xs fw-black text-uppercase tracking-widest px-3 py-1.5 rounded-pill shadow-sm">Phase: {activeOrder ? activeOrder.phase : 'Stitching'}</span>
